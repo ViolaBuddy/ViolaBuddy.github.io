@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+  <title>Popularity of Characters in Super Smash Bros. for 3DS and Wii U</title>
+
+  <link href='http://fonts.googleapis.com/css?family=PT+Serif' rel='stylesheet' type='text/css'>
+  <link href='style.css' rel='stylesheet' type='text/css'>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+</head>
+
+
+<body>
+<h3>Popularity of Characters in Super Smash Bros. for 3DS and Wii U</h3>
+
+<div id="wrapper">
+  <div id="blurb">
+    <p>This is a graph of the characters I have played against online in Super Smash Bros. for 3DS and Wii U in 1-on-1 For Glory mode. The blue portion of each bar is from the Wii U version, and the red portion of each bar is from the 3DS version. For reference, the first match recorded was at the end of March 2015.</p>
+    <p>There are a few options. The first is to filter out the data actually displayed: all data collected is the default. However, there are some instances where I felt that my fighter selection impacted my opponent's fighter selection (e.g. if they choose whomever I just chose on the last round); to filter this out, there is also the option of choosing just the first matches against anyone. Finally, I have the number of people who seem to "main" the character&mdash;i.e. they played more than once with that character against me. Also, you can filter out one console or the other; otherwise, the red portion of the bars represent the 3DS version, and the blue portions represent the Wii U version.</p>
+    <p>You can also order the fighters by a few different criteria: the three above filterings, as well as by alphabet and by universe. Similarly, there is a dropdown box to highlight the bars by universe.</p>
+    <p>Finally, there is a zoom filter below the graph that lets you move around or zoom in out of the main graph. Clicking on a bar gives a little bit more information on that fighter below the graph.</p>
+    <p>Images are from <a href="http://www.spriters-resource.com/3ds/supersmashbrosfornintendo3ds/sheet/62681/">The Spriter's Resource</a> and <a href="http://smashbros-miiverse.com/">http://smashbros-miiverse.com/</a></p>
+  </div>
+  <div id="main">
+    <div id="form_wrapper">
+      <div class="form" id="filter_type_form">
+        <p>Filter</p>
+        <input type="radio" name="filter_type" value="all" id="filter_all" checked="checked">
+        <label for="filter_all">All data</label><br>
+        <input type="radio" name="filter_type" value="firsts" id="filter_firsts" >
+        <label for="filter_firsts">Only first matches</label><br>
+        <input type="radio" name="filter_type" value="mains" id="filter_mains" >
+        <label for="filter_mains">Only mains</label><br>
+        <hr>
+        <input type="radio" name="filter_console" value="wiiU" id="console_wii_u">
+        <label for="console_wii_u">Wii U data only</label><br>
+        <input type="radio" name="filter_console" value="3DS" id="console_3ds">
+        <label for="console_3ds">3DS data only</label><br>
+        <input type="radio" name="filter_console" value="both" id="console_all" checked="checked">
+        <label for="console_all">Data from both consoles</label><br>
+      </div>
+      <div class="form" id="order_by_form">
+        <p>Order by</p>
+        <input type="radio" name="filter_order" value="all" id="order_all" checked="checked">
+        <label for="order_all">Total number of usages</label><br>
+        <input type="radio" name="filter_order" value="firsts" id="order_firsts">
+        <label for="order_firsts">Number of first matches</label><br>
+        <input type="radio" name="filter_order" value="mains" id="order_mains">
+        <label for="order_mains">Number of mains</label><br>
+        <input type="radio" name="filter_order" value="alphabet" id="order_alphabet">
+        <label for="order_alphabet">Alphabetical</label><br>
+        <input type="radio" name="filter_order" value="universe" id="order_universe">
+        <label for="order_universe">Universe</label><br>
+      </div>
+      <div class="form" id="filter_color">
+        <p>Select Universe</p>
+        <select id="universe_select">
+          <option value="none">(None)</option>
+        </select>
+      </div>
+    </div>
+    <div id="main_graph"></div>
+    <div id="data_box">
+      <div id="fighter_image"></div>
+      <h4 id="fighter_name"></h4>
+      <ul id="fighter_info"></ul>
+      <div class="clear"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /*CONSTANTS*/
+  var WIDTH = 900;
+  var DATA_BOX_WIDTH = 200;
+  var HEIGHT = 600;
+  var EDGES = {LEFT: 60, RIGHT: WIDTH - 50, TOP: 50, BOTTOM: 450};
+  var AXIS_LABEL_LEFT = 30;
+  var AXIS_LABEL_BOTTOM = 540;
+  var SMALL_HEAD_SIZE = 23;
+  var SLIDER_MARGIN = {TOP: 50, RIGHT: WIDTH - 50, BOTTOM: HEIGHT - 50, LEFT: 60};
+  var SLIDER_SIZE = 30;
+  var BAR_SIZE_ZERO = 15;
+  var DEFAULT_BRUSH = [SLIDER_MARGIN.LEFT, (SLIDER_MARGIN.RIGHT + SLIDER_MARGIN.LEFT) / 3];
+  var UNIVERSES = {};
+  var COLORS = {ThreeDS_sel: "#FF8844", ThreeDS: "#9A3334",
+                WiiU_sel: "#4488FF", WiiU: "#33347A"};
+
+  /*GLOBAL VARIABLES*/
+  var currentGenre, currentStartYear, currentEndYear;
+  var xScale, yScale, xAxis, yAxis, xScaleSlider;
+  var axisPictures, axisLabels;
+  var barsgU, barsU;
+  var barsg3, bars3;
+  var theMask;
+  var barSize = BAR_SIZE_ZERO;
+  var headSize = SMALL_HEAD_SIZE;
+  var brush, brushg;
+  var currFiltering = "all";
+  var currConsole = "both";
+  var currOrdering = "all";
+
+  /*SETUP*/
+  var largeGraph = d3.select("#main_graph").append("svg").attr("width", WIDTH).attr("height", HEIGHT);
+  var dataBox = d3.select("#data_box");
+  var fighterInfo = {};
+  fighterInfo.name = d3.select("#fighter_name");
+  fighterInfo.image = d3.select("#fighter_image");
+  fighterInfo.info = d3.select("#fighter_info");
+
+  d3.selectAll(".form").style("width", (WIDTH / 3 - 20) + "px");
+  d3.select("#filter_type_form").selectAll("input[name=filter_type]").on("click", function() {
+    currFiltering = d3.select(this).node().value;
+    changeFilter();
+  });
+  d3.select("#filter_type_form").selectAll("input[name=filter_console]").on("click", function() {
+    currConsole = d3.select(this).node().value;
+    changeFilter();
+    setTimeout(changeOrder, 500); //wait to avoid race conditions
+  });
+  d3.select("#order_by_form").selectAll("input").on("click", function(){
+    currOrdering = d3.select(this).node().value;
+    changeOrder();
+  });
+
+  var data;
+  d3.json("smashData.json", function (theData) {
+    console.log(theData);
+
+    data = theData;
+    //universe_select
+    theData.forEach(function(d) {
+      UNIVERSES[d.universe] = true;
+    });
+    Object.keys(UNIVERSES).sort().forEach(function(u) {
+      d3.select("#universe_select").append("option").attr("value", u).text(u);
+    })
+    d3.select("#universe_select")
+      .on("change", function() {
+        var selectedUniverse = d3.select(this).property('value');
+        //updateLegend(newData);
+        recolor(selectedUniverse);
+      });
+
+    //create mask
+    theMask = largeGraph.append("clipPath").attr("id", "the_clip_path");
+    theMask.append("rect").attr({
+      x:EDGES.LEFT,
+      y:EDGES.TOP,
+      width: (EDGES.RIGHT - EDGES.LEFT),
+      height: EDGES.BOTTOM
+    });
+
+    //create background color
+    largeGraph.append("rect").attr({
+      id:"chart_area",
+      x:EDGES.LEFT,
+      y:EDGES.TOP,
+      width: (EDGES.RIGHT - EDGES.LEFT),
+      height: EDGES.BOTTOM - EDGES.TOP
+    }).style({
+      fill:"#ffccaa",
+      opacity: 0.5,
+      cursor: "default"
+    });
+
+    //set up scales, axis labels, and axes
+    var yMax = d3.max(theData, function(d){return d.Both.usages;});
+    //round to the nearest 5
+    yScale = d3.scale.linear().domain([0,Math.ceil((yMax + 1) / 5) * 5]).range([EDGES.BOTTOM, EDGES.TOP]);
+    largeGraph.append("text")
+      .attr("transform", "rotate(-90, " + AXIS_LABEL_LEFT + ", " + EDGES.BOTTOM / 2 + ")" +
+      "translate(" + AXIS_LABEL_LEFT + ", " + EDGES.BOTTOM / 2 + ")")
+      .text("Number of Usages").attr("class", "axis_label");
+    yAxis = d3.svg.axis().scale(yScale).orient("left");
+    largeGraph.append("g").attr("class", "axis").attr("transform", "translate(" + EDGES.LEFT + ", 0)").call(yAxis);
+    xScale = d3.scale.ordinal().domain(theData.map(function(d) { return d.name; } ));
+    axisPictures = largeGraph.append("g").attr("clip-path", "url(#the_clip_path)")
+      .selectAll("image").data(theData).enter().append("image")
+      .attr({"xlink:href": function(d){ return "Images/stock/" + d.name.toLowerCase().replace(/\./g, "").replace(/ /g, "_").replace("&", "and") + ".png";},
+          "width": headSize,
+          "height": headSize,
+          "y": yScale(0) + headSize/2
+        });
+
+    //create bars
+    barsgU = largeGraph.append("g");
+    barsU = barsgU.selectAll("rect").data(theData).enter().append("rect")
+      .attr("clip-path", "url(#the_clip_path)")
+      .attr("y", function(d){return yScale(d["WiiU"].usages);})
+      .attr("height", function(d) { return yScale(0) - yScale(d["WiiU"].usages); })
+      .style("fill", COLORS.WiiU)
+      .on("click", function(d){
+        activateFighter(d);
+      });
+    barsg3 = largeGraph.append("g");
+    bars3 = barsg3.selectAll("rect").data(theData).enter().append("rect")
+      .attr("clip-path", "url(#the_clip_path)")
+      .attr("y", function(d){return yScale(d["3DS"].usages + d["WiiU"].usages);})
+      .attr("height", function(d) { return yScale(0) - yScale(d["3DS"].usages); })
+      .style("fill", COLORS.ThreeDS)
+      .on("click", function(d){
+        activateFighter(d);
+      });
+    
+
+    //slider
+    xScaleSlider = d3.scale.ordinal().domain(theData.map(function(d) { return d.name; } )).rangePoints([SLIDER_MARGIN.LEFT, SLIDER_MARGIN.RIGHT]);
+    var sliderAxis = d3.svg.axis().scale(xScaleSlider).orient("bottom").tickFormat("");
+    largeGraph.append("g")
+        .attr("id", "the_slider")
+        .attr("class", "slider axis")
+        .attr("transform", "translate(0," + SLIDER_MARGIN.BOTTOM + ")")
+        .call(sliderAxis);
+
+    d3.select("#the_slider").selectAll(".tick").each( function(d) {
+        //portraits
+        //http://tributary.io/inlet/4489362/
+        var theName = d.toLowerCase().replace(/\./g, "").replace(/ /g, "_").replace("&", "and");
+        d3.select(this.parentNode).append("image")
+        .attr({"xlink:href": "Images/stock/" + theName + ".png",
+          "width": SMALL_HEAD_SIZE,
+          "height": SMALL_HEAD_SIZE,
+          "transform":"translate(" + (xScaleSlider(d) - SMALL_HEAD_SIZE/2) + ",0)"})
+        .__data__ = d;
+      });
+
+    //set up brushing
+    brush = d3.svg.brush()
+        .x(xScaleSlider)
+        .extent(DEFAULT_BRUSH)
+        .on("brush",doBrush);
+    brushg = largeGraph.append("g")
+        .attr("class", "brush")
+        .call(brush);
+    brushg.selectAll("rect")
+        .attr("height", SLIDER_SIZE)
+        .attr("transform", "translate(0," + (SLIDER_MARGIN.BOTTOM - SLIDER_SIZE) + ")");
+
+    //handles on brush
+    //http://bl.ocks.org/mbostock/4349545
+    var arc = d3.svg.arc()
+      .outerRadius(SLIDER_SIZE / 2)
+      .startAngle(0)
+      .endAngle(function(d, i) { return i ? -Math.PI : Math.PI; });
+    brushg.selectAll(".resize").append("path")
+        .attr("transform", "translate(0," +  (SLIDER_MARGIN.BOTTOM - SLIDER_SIZE/2) + ")")
+        .attr("d", arc);
+
+    //initialize
+    doBrush();
+    changeOrder();
+  });
+
+  function doBrush() {
+    var newExtent = brush.extent();
+
+    var deltaS = SLIDER_MARGIN.RIGHT - SLIDER_MARGIN.LEFT;
+    var deltaM = EDGES.RIGHT - EDGES.LEFT;
+    var deltaX = newExtent[1] - newExtent[0];
+    var deltaR = deltaM * deltaS / deltaX;
+    var r0 = deltaR / deltaS * (SLIDER_MARGIN.LEFT - newExtent[0]) + EDGES.LEFT;
+    var r1 = deltaR + r0;
+
+    xScale.rangePoints([r0, r1], 1);
+    barSize = BAR_SIZE_ZERO * deltaS / deltaX;
+
+    barsU.attr("width", barSize);
+    bars3.attr("width", barSize);
+
+    resetXScale(false);
+  }
+
+  function resetXScale(withTransitionX) {
+    var transitionFunctionX;
+    var axisPicturesNow = axisPictures;
+    var barsWithTrans = barsU;
+    var barsWithTrans3 = bars3;
+    if(withTransitionX) {
+      axisPicturesNow = axisPictures.transition().duration(500);
+      barsWithTrans = barsU.transition().duration(500);
+      barsWithTrans3 = bars3.transition().duration(500);
+    }
+
+    axisPicturesNow.attr("x", function(d) {return xScale(d.name) - headSize / 2;});
+    barsWithTrans.attr("x", function(d) {
+        return xScale(d.name) - barSize / 2;
+    });
+    barsWithTrans3.attr("x", function(d) {
+        return xScale(d.name) - barSize / 2;
+    });
+  }
+
+  function changeFilter() {
+    var changeTo;
+    switch(currFiltering) {
+      case "all":
+        changeTo = "usages";
+        break;
+      case "firsts":
+        changeTo = "firstUsages";
+        break;
+      case "mains":
+        changeTo = "mains";
+        break;
+      default:
+        break;
+    }
+
+    barsU.transition().duration(500)
+      .attr("y", function(d){
+        if(currConsole === "3DS") return yScale(0);
+        else return yScale(d["WiiU"][changeTo]);
+      })
+      .attr("height", function(d) {
+        if(currConsole === "3DS") return 0;
+        else return yScale(0) - yScale(d["WiiU"][changeTo]);
+      });
+    bars3.transition().duration(500)
+      .attr("y", function(d){
+        if(currConsole === "3DS") return yScale(d["3DS"][changeTo]);
+        else if (currConsole === "wiiU") return yScale(d["WiiU"][changeTo]);
+        else return yScale(d["3DS"][changeTo] + d["WiiU"][changeTo]);
+      })
+      .attr("height", function(d) {
+        if(currConsole === "wiiU") return 0;
+        else return yScale(0) - yScale(d["3DS"][changeTo]);
+      });
+  }
+
+  function changeOrder() {
+    var sortMethod;
+    var theConsole;
+    switch(currConsole) {
+      case "both":
+        theConsole = "Both";
+        break;
+      case "wiiU":
+        theConsole = "WiiU";
+        break;
+      case "3DS":
+        theConsole = "3DS";
+        break;
+      default:
+        break;
+    }
+
+    switch(currOrdering) {
+      case "alphabet":
+        sortMethod = function(d1, d2){
+          //http://stackoverflow.com/questions/51165/how-do-you-do-string-comparison-in-javascript
+          if ( d1.name < d2.name )
+            return -1;
+          if ( d1.name > d2.name )
+            return 1;
+          return 0;
+        };
+        break;
+      case "universe":
+        sortMethod = function(d1, d2){
+          //http://stackoverflow.com/questions/51165/how-do-you-do-string-comparison-in-javascript
+          if ( d1.universe < d2.universe )
+            return -1;
+          if ( d1.universe > d2.universe )
+            return 1;
+          return d2[theConsole].usages - d1[theConsole].usages; //same universe: order secondarily by number of usages
+        };
+        break;
+      case "all":
+        sortMethod = function(d1, d2){return d2[theConsole].usages - d1[theConsole].usages;};
+        break;
+      case "firsts":
+        sortMethod = function(d1, d2){return (d2[theConsole].firstUsages - d1[theConsole].firstUsages) + (d2[theConsole].usages - d1[theConsole].usages) / 10000;};
+        break;
+      case "mains":
+        sortMethod = function(d1, d2){
+          return (d2[theConsole].mains - d1[theConsole].mains) + (d2[theConsole].usages - d1[theConsole].usages) / 10000;
+        };
+        break;
+      default:
+        break;
+    }
+
+    var newDomain = data.sort(sortMethod).map(function(d) { return d.name; } );
+
+    xScale.domain(newDomain);
+    xScaleSlider.domain(newDomain);
+    d3.select("#the_slider").selectAll("image").attr("xlink:href", function(d, i) {
+      //d will be undefined
+      var theName = newDomain[i].toLowerCase().replace(/\./g, "").replace(/ /g, "_").replace("&", "and");
+      return "Images/stock/" + theName + ".png";
+    });
+
+    resetXScale(true);
+  }
+
+  function recolor(newUniverse) {
+    barsU.transition().style("fill", function(d) {
+      if(d.universe === newUniverse) {
+        return COLORS.WiiU_sel;
+      } else {
+        return COLORS.WiiU;
+      }
+    });
+    bars3.transition().style("fill", function(d) {
+      if(d.universe === newUniverse) {
+        return COLORS.ThreeDS_sel;
+      } else {
+        return COLORS.ThreeDS;
+      }
+    });
+  }
+
+  function activateFighter(newFighter) {
+    fighterInfo.name.text(newFighter.name);
+    fighterInfo.info.html("");
+    fighterInfo.info.append("li").html(newFighter.universe + " Universe");
+    fighterInfo.info.append("li").html("Number of total usages: <span class=\"white\">" + newFighter.Both.usages + "</span>"
+      + " (<span class=\"blue\">" + newFighter["WiiU"].usages
+      + "</span> + <span class=\"red\">" + newFighter["3DS"].usages + "</span>)");
+    fighterInfo.info.append("li").html("Number of first usages: <span class=\"white\">" + newFighter.Both.firstUsages + "</span>"
+      + " (<span class=\"blue\">" + newFighter["WiiU"].firstUsages
+      + "</span> + <span class=\"red\">" + newFighter["3DS"].firstUsages + "</span>)");
+    fighterInfo.info.append("li").html("Number of mains: <span class=\"white\">" + newFighter.Both.mains + "</span>"
+      + " (<span class=\"blue\">" + newFighter["WiiU"].mains
+      + "</span> + <span class=\"red\">" + newFighter["3DS"].mains + "</span>)");
+    fighterInfo.image.html("");
+    var theName = newFighter.name.toLowerCase().replace(/\./g, "").replace(/ /g, "_").replace("&", "and");
+    fighterInfo.image.append("img").attr("src", "Images/full/" + theName + ".png");
+  }
+</script>
+
+</body>
+</html>

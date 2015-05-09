@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+  <title>temp</title>
+
+  <link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>
+</head>
+
+<style>
+  body {
+  	background-color: #F3EFE0;
+  	font-family: 'EB Garamond', serif;
+  	color: #354458;
+  }
+  h3{
+  	font-size: 38px;
+  	text-align: center;
+  	font-family: 'EB Garamond', serif;
+  	color: #354458;
+  }
+
+  #LargeGraph {
+    display: inline-block;
+    border: 1px solid #354458;
+    background-color: #333333;
+  }
+
+  #wrapper {
+    text-align: center;
+  }
+
+  #main {
+    display: inline-block;
+    margin-left:auto;
+    margin-right:auto;
+    padding: 1em;
+    border: 2px solid #354458;
+    background-color: #354458;
+  }
+</style>
+
+<body>
+<h3>temp</h3>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<div id="wrapper">
+  <img id="thing" src="allStocks.png">
+
+  <br>
+  <hr>
+</div>
+
+<script>
+window.onload = function() {
+    var img=document.getElementById("thing");
+
+    for(var i=0; i<51; i++) {
+      var c=d3.select("#wrapper").append("canvas").attr({style:"border: 1px solid black", width:"70", height:"65"});
+      var ctx=c[0][0].getContext("2d");
+      ctx.drawImage(img,1,-1-i*66);
+    }
+};
+</script>
+
+</body>
+</html>

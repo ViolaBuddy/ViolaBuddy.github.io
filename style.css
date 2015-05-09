@@ -1,0 +1,135 @@
+body {
+  background-color: #F3EFE0;
+  font-family: 'PT Serif', serif;
+  color: #354458;
+}
+
+h3{
+  font-size: 38px;
+  text-align: center;
+  color: #354458;
+}
+
+h4{
+  font-size: 22px;
+  text-align: center;
+}
+
+a {
+  color: #111188;
+}
+
+.axis_label {
+  font-size: 18px;
+  text-anchor: middle;
+  font-weight:bold;
+}
+
+.resize path {
+  fill: #D9D0C3;
+  stroke: #000;
+  stroke-width: 0.5px;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.brush .extent {
+  fill: #354458;
+  shape-rendering: crispEdges;
+}
+
+rect {
+  cursor: pointer;
+}
+
+svg {
+  display: block;
+  margin: auto;
+  background-color: #F3EFE0;
+  font-size: 15px;
+}
+
+svg text{
+  /*unselectable text http://stackoverflow.com/questions/69430/is-there-a-way-to-make-text-unselectable-on-an-html-page*/
+  cursor: default;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#form_wrapper {
+  display: table;
+}
+
+#blurb, .form, #data_box {
+  text-align: left;
+  padding: 10px;
+}
+
+.form {
+  color: white;
+  border: 1px solid #999999;
+  display: table-cell;
+}
+
+label {
+  cursor: hand;
+}
+
+#main_graph {
+  display: inline-block;
+}
+
+#wrapper {
+  text-align: center;
+}
+
+#main {
+  display: inline-block;
+  margin-left:auto;
+  margin-right:auto;
+  padding: 1em;
+  border: 2px solid #354458;
+  background-color: #354458;
+}
+
+#data_box {
+  color: white;
+  min-height: 430px;
+  background-color: #333333;
+}
+
+#fighter_image {
+  float: left;
+  width: 500px;
+}
+
+#fighter_image img {
+  height: 400px;
+  padding: 15px;
+}
+
+.clear {
+  clear: both;
+}
+
+.red {
+  color: #DD5555;
+  font-weight: bold;
+}
+
+.blue {
+  color: #8888FF;
+  font-weight: bold;
+}
+
+.white {
+  color: #FFFFFF;
+  font-weight: bold;
+}
