@@ -14,18 +14,19 @@
 ,{"name":"Toon Link","universe":"The Legend of Zelda","Both":{"usages":9,"firstUsages":3,"mains":3},"WiiU":{"usages":4,"firstUsages":2,"mains":1},"3DS":{"usages":5,"firstUsages":1,"mains":2}}
 ,{"name":"Dr. Mario","universe":"Mario","Both":{"usages":8,"firstUsages":4,"mains":1},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":8,"firstUsages":4,"mains":1}}
 ,{"name":"Falco","universe":"Star Fox","Both":{"usages":8,"firstUsages":1,"mains":1},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":8,"firstUsages":1,"mains":1}}
+,{"name":"Zero Suit Samus","universe":"Metroid","Both":{"usages":8,"firstUsages":4,"mains":1},"WiiU":{"usages":3,"firstUsages":1,"mains":0},"3DS":{"usages":5,"firstUsages":3,"mains":1}}
 ,{"name":"Ike","universe":"Fire Emblem","Both":{"usages":8,"firstUsages":2,"mains":2},"WiiU":{"usages":2,"firstUsages":0,"mains":0},"3DS":{"usages":6,"firstUsages":2,"mains":2}}
 ,{"name":"Mario","universe":"Mario","Both":{"usages":8,"firstUsages":4,"mains":2},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":7,"firstUsages":4,"mains":2}}
 ,{"name":"Pit","universe":"Kid Icarus","Both":{"usages":7,"firstUsages":3,"mains":1},"WiiU":{"usages":3,"firstUsages":0,"mains":1},"3DS":{"usages":4,"firstUsages":3,"mains":0}}
 ,{"name":"Villager","universe":"Animal Crossing","Both":{"usages":7,"firstUsages":0,"mains":0},"WiiU":{"usages":3,"firstUsages":0,"mains":0},"3DS":{"usages":4,"firstUsages":0,"mains":0}}
 ,{"name":"Ness","universe":"Mother","Both":{"usages":7,"firstUsages":3,"mains":1},"WiiU":{"usages":2,"firstUsages":1,"mains":0},"3DS":{"usages":5,"firstUsages":2,"mains":1}}
 ,{"name":"R.O.B.","universe":"R.O.B.","Both":{"usages":7,"firstUsages":2,"mains":1},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":7,"firstUsages":2,"mains":1}}
+,{"name":"Mr. Game & Watch","universe":"Game & Watch","Both":{"usages":7,"firstUsages":0,"mains":2},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":7,"firstUsages":0,"mains":2}}
 ,{"name":"Palutena","universe":"Kid Icarus","Both":{"usages":6,"firstUsages":1,"mains":0},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":5,"firstUsages":1,"mains":0}}
 ,{"name":"Luigi","universe":"Mario","Both":{"usages":6,"firstUsages":2,"mains":0},"WiiU":{"usages":1,"firstUsages":1,"mains":0},"3DS":{"usages":5,"firstUsages":1,"mains":0}}
-,{"name":"Zero Suit Samus","universe":"Metroid","Both":{"usages":6,"firstUsages":3,"mains":0},"WiiU":{"usages":3,"firstUsages":1,"mains":0},"3DS":{"usages":3,"firstUsages":2,"mains":0}}
 ,{"name":"Lucina","universe":"Fire Emblem","Both":{"usages":6,"firstUsages":2,"mains":1},"WiiU":{"usages":2,"firstUsages":1,"mains":0},"3DS":{"usages":4,"firstUsages":1,"mains":1}}
+,{"name":"Diddy Kong","universe":"Donkey Kong","Both":{"usages":6,"firstUsages":3,"mains":1},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":6,"firstUsages":3,"mains":1}}
 ,{"name":"Bowser","universe":"Mario","Both":{"usages":6,"firstUsages":4,"mains":0},"WiiU":{"usages":2,"firstUsages":1,"mains":0},"3DS":{"usages":4,"firstUsages":3,"mains":0}}
-,{"name":"Mr. Game & Watch","universe":"Game & Watch","Both":{"usages":6,"firstUsages":0,"mains":2},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":6,"firstUsages":0,"mains":2}}
 ,{"name":"Lucario","universe":"Pok\u00e9mon","Both":{"usages":5,"firstUsages":1,"mains":1},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":4,"firstUsages":1,"mains":1}}
 ,{"name":"Dark Pit","universe":"Kid Icarus","Both":{"usages":5,"firstUsages":1,"mains":0},"WiiU":{"usages":2,"firstUsages":1,"mains":0},"3DS":{"usages":3,"firstUsages":0,"mains":0}}
 ,{"name":"Kirby","universe":"Kirby","Both":{"usages":5,"firstUsages":0,"mains":0},"WiiU":{"usages":2,"firstUsages":0,"mains":0},"3DS":{"usages":3,"firstUsages":0,"mains":0}}
@@ -35,14 +36,13 @@
 ,{"name":"Yoshi","universe":"Yoshi","Both":{"usages":4,"firstUsages":2,"mains":1},"WiiU":{"usages":2,"firstUsages":1,"mains":1},"3DS":{"usages":2,"firstUsages":1,"mains":0}}
 ,{"name":"King Dedede","universe":"Kirby","Both":{"usages":4,"firstUsages":2,"mains":1},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":4,"firstUsages":2,"mains":1}}
 ,{"name":"Donkey Kong","universe":"Donkey Kong","Both":{"usages":3,"firstUsages":2,"mains":0},"WiiU":{"usages":2,"firstUsages":1,"mains":0},"3DS":{"usages":1,"firstUsages":1,"mains":0}}
+,{"name":"Wii Fit Trainer","universe":"Wii Fit","Both":{"usages":3,"firstUsages":0,"mains":0},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":2,"firstUsages":0,"mains":0}}
 ,{"name":"Charizard","universe":"Pok\u00e9mon","Both":{"usages":3,"firstUsages":1,"mains":1},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":3,"firstUsages":1,"mains":1}}
 ,{"name":"Zelda","universe":"The Legend of Zelda","Both":{"usages":3,"firstUsages":0,"mains":0},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":2,"firstUsages":0,"mains":0}}
-,{"name":"Diddy Kong","universe":"Donkey Kong","Both":{"usages":3,"firstUsages":2,"mains":0},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":3,"firstUsages":2,"mains":0}}
+,{"name":"Wario","universe":"Wario","Both":{"usages":2,"firstUsages":1,"mains":0},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":1,"firstUsages":1,"mains":0}}
 ,{"name":"Robin","universe":"Fire Emblem","Both":{"usages":2,"firstUsages":0,"mains":0},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":1,"firstUsages":0,"mains":0}}
-,{"name":"Wii Fit Trainer","universe":"Wii Fit","Both":{"usages":2,"firstUsages":0,"mains":0},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":1,"firstUsages":0,"mains":0}}
 ,{"name":"Rosalina & Luma","universe":"Mario","Both":{"usages":2,"firstUsages":0,"mains":0},"WiiU":{"usages":2,"firstUsages":0,"mains":0},"3DS":{"usages":0,"firstUsages":0,"mains":0}}
 ,{"name":"Peach","universe":"Mario","Both":{"usages":2,"firstUsages":0,"mains":0},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":1,"firstUsages":0,"mains":0}}
-,{"name":"Wario","universe":"Wario","Both":{"usages":1,"firstUsages":0,"mains":0},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":0,"firstUsages":0,"mains":0}}
 ,{"name":"Olimar","universe":"Pikmin","Both":{"usages":1,"firstUsages":0,"mains":0},"WiiU":{"usages":1,"firstUsages":0,"mains":0},"3DS":{"usages":0,"firstUsages":0,"mains":0}}
 ,{"name":"Duck Hunt","universe":"Duck Hunt","Both":{"usages":1,"firstUsages":1,"mains":0},"WiiU":{"usages":1,"firstUsages":1,"mains":0},"3DS":{"usages":0,"firstUsages":0,"mains":0}}
 ,{"name":"Shulk","universe":"Xenoblade","Both":{"usages":1,"firstUsages":0,"mains":0},"WiiU":{"usages":0,"firstUsages":0,"mains":0},"3DS":{"usages":1,"firstUsages":0,"mains":0}}
