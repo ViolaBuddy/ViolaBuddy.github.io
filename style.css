@@ -1,13 +1,12 @@
 body {
-  background-color: #F3EFE0;
+  background-color: #DDDDEE;
   font-family: 'PT Serif', serif;
-  color: #354458;
+  color: #000000;
 }
 
 h3{
   font-size: 38px;
   text-align: center;
-  color: #354458;
 }
 
 h4{
@@ -17,40 +16,12 @@ h4{
 
 a {
   color: #111188;
-}
-
-.axis_label {
-  font-size: 18px;
-  text-anchor: middle;
-  font-weight:bold;
-}
-
-.resize path {
-  fill: #D9D0C3;
-  stroke: #000;
-  stroke-width: 0.5px;
-}
-
-.axis path, .axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.brush .extent {
-  fill: #354458;
-  shape-rendering: crispEdges;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 rect {
   cursor: pointer;
-}
-
-svg {
-  display: block;
-  margin: auto;
-  background-color: #F3EFE0;
-  font-size: 15px;
 }
 
 svg text{
@@ -63,8 +34,13 @@ svg text{
   user-select: none;
 }
 
+#filter_instructions {
+  overflow: hidden;
+}
+
 #form_wrapper {
   display: table;
+  overflow: hidden;
 }
 
 #blurb, .form, #data_box {
@@ -73,9 +49,13 @@ svg text{
 }
 
 .form {
-  color: white;
-  border: 1px solid #999999;
+  border: 1px dotted #FF3333;
   display: table-cell;
+}
+
+hr {
+  border: 0;
+  border-bottom: 1px dotted  #FF3333;
 }
 
 label {
@@ -95,14 +75,52 @@ label {
   margin-left:auto;
   margin-right:auto;
   padding: 1em;
-  border: 2px solid #354458;
-  background-color: #354458;
+  border: 2px solid #000000;
+  background-color: #EEC8A4;
 }
 
 #data_box {
-  color: white;
   min-height: 430px;
-  background-color: #333333;
+  background-color: #E0B894;
+  margin: 3px;
+  margin-top: 1em;
+}
+
+
+svg {
+  display: block;
+  margin: auto;
+  margin-top: 1em;
+  background-color: #E0B894;
+  font-size: 15px;
+}
+
+#chart_area {
+  fill: #FFE8CC;
+  cursor: default;
+}
+
+.axis_label {
+  font-size: 18px;
+  text-anchor: middle;
+  font-weight:bold;
+}
+
+.resize path {
+  fill: #DDD299;
+  stroke: #333333;
+  stroke-width: 0.5px;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000000;
+  shape-rendering: crispEdges;
+}
+
+.brush .extent {
+  fill: #B2703E;
+  shape-rendering: crispEdges;
 }
 
 #fighter_image {
@@ -120,12 +138,12 @@ label {
 }
 
 .red {
-  color: #DD5555;
+  color: #DD3333;
   font-weight: bold;
 }
 
 .blue {
-  color: #8888FF;
+  color: #5555EE;
   font-weight: bold;
 }
 

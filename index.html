@@ -6,19 +6,37 @@
 
   <link href='http://fonts.googleapis.com/css?family=PT+Serif' rel='stylesheet' type='text/css'>
   <link href='style.css' rel='stylesheet' type='text/css'>
-  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 </head>
 
 
 <body>
-<h3>Popularity of Characters in Super Smash Bros. for 3DS and Wii U</h3>
+<h3>Popularity of Characters in Super Smash Bros. for <span class="red">3DS</span> and <span class="blue">Wii U</span></h3>
 
 <div id="wrapper">
   <div id="blurb">
-    <p>This is a graph of the characters I have played against online in Super Smash Bros. for 3DS and Wii U in 1-on-1 For Glory mode. The blue portion of each bar is from the Wii U version, and the red portion of each bar is from the 3DS version. For reference, the first match recorded was at the end of March 2015.</p>
-    <p>There are a few options. The first is to filter out the data actually displayed: all data collected is the default. However, there are some instances where I felt that my fighter selection impacted my opponent's fighter selection (e.g. if they choose whomever I just chose on the last round); to filter this out, there is also the option of choosing just the first matches against anyone. Finally, I have the number of people who seem to "main" the character&mdash;i.e. they played more than once with that character against me. Also, you can filter out one console or the other; otherwise, the red portion of the bars represent the 3DS version, and the blue portions represent the Wii U version.</p>
-    <p>You can also order the fighters by a few different criteria: the three above filterings, as well as by alphabet and by universe. Similarly, there is a dropdown box to highlight the bars by universe.</p>
-    <p>Finally, there is a zoom filter below the graph that lets you move around or zoom in out of the main graph. Clicking on a bar gives a little bit more information on that fighter below the graph.</p>
+    <p>This is a graph of the characters I have played against online in Super Smash Bros. for 3DS and Wii U in 1-on-1 For Glory mode. The blue portion of each bar is from the Wii U version, and the red portion of each bar is from the 3DS version. For reference, the first match recorded was at the end of March 2015. It might be interesting to compare this chart to Event Hubs's <a href="http://www.eventhubs.com/tiers/ssb4/">Tier List</a> and especially its <a href="http://www.eventhubs.com/stats/ssb4/">Character Popularity List</a>.</p>
+    <p>There are a few options to filter, order, and highlight the results:<br>
+      <a id="toggle_filter_instructions">(Click to hide)</a></p>
+    <ul id="filter_instructions">
+      <li>Filter by details:
+        <ul>
+          <li>all data collected (default)</li>
+          <li>the first match against each given player (filter out any influence that I might have in their selections in future matches&mdash;otherwise, the data might be skewed in favor of counterpicks against my mains, etc.)</li>
+          <li>the number of people who "main" the character (i.e. plays with that character more than once)</li>
+        </ul>
+      </li>
+      <li>Filter by console (self-explanatory)</li>
+      <li>Order by:
+        <ul>
+          <li>all data collected, first match, or number of mains, as above</li>
+          <li>alphabetical order (of their English name)</li>
+          <li>universe (i.e. all the Mario characters are listed together, etc.)</li>
+        </ul>
+      </li>
+      <li>Highlight by universe: if a universe is selected, the bars of characters from that universe are in a brighter color.</li>
+      <li>Zoom filter: below the graph, click and drag the bar to scroll through the graph. Alternately, click the handles to expand or narrow the view.</li>
+      <li>Details of a fighter: clicking on a fighter's bar shows his, her, its, or their details below the main graph.</li>
+    </ul>
     <p>Images are from <a href="http://www.spriters-resource.com/3ds/supersmashbrosfornintendo3ds/sheet/62681/">The Spriter's Resource</a> and <a href="http://smashbros-miiverse.com/">http://smashbros-miiverse.com/</a></p>
   </div>
   <div id="main">
@@ -69,6 +87,7 @@
   </div>
 </div>
 
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script>
   /*CONSTANTS*/
   var WIDTH = 900;
@@ -100,6 +119,11 @@
   var currConsole = "both";
   var currOrdering = "all";
 
+  var instructionsOpen = false;
+  var instructionsHeight = d3.select("#filter_instructions").style("height");
+  d3.select("#filter_instructions").style("height", "0px");
+  d3.select("#toggle_filter_instructions").text("(Click to show)");
+
   /*SETUP*/
   var largeGraph = d3.select("#main_graph").append("svg").attr("width", WIDTH).attr("height", HEIGHT);
   var dataBox = d3.select("#data_box");
@@ -122,11 +146,19 @@
     currOrdering = d3.select(this).node().value;
     changeOrder();
   });
+  d3.select("#toggle_filter_instructions").on("click", function(){
+    if(instructionsOpen) {
+      d3.select("#filter_instructions").transition().style("height", "0px");
+      d3.select("#toggle_filter_instructions").text("(Click to show)");
+    } else {
+      d3.select("#filter_instructions").transition().style("height", instructionsHeight);
+      d3.select("#toggle_filter_instructions").text("(Click to hide)");
+    }
+    instructionsOpen = !instructionsOpen;
+  })
 
   var data;
   d3.json("smashData.json", function (theData) {
-    console.log(theData);
-
     data = theData;
     //universe_select
     theData.forEach(function(d) {
@@ -158,10 +190,6 @@
       y:EDGES.TOP,
       width: (EDGES.RIGHT - EDGES.LEFT),
       height: EDGES.BOTTOM - EDGES.TOP
-    }).style({
-      fill:"#ffccaa",
-      opacity: 0.5,
-      cursor: "default"
     });
 
     //set up scales, axis labels, and axes
