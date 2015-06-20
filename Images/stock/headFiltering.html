@@ -46,6 +46,9 @@
 
 <div id="wrapper">
   <img id="thing" src="allStocks.png">
+  <img id="thing_lucas" src="SSB4U-NewStockIcons/stock_90_lucas_00.png">
+  <img id="thing_roy" src="SSB4U-NewStockIcons/stock_90_roy_00.png">
+  <img id="thing_ryu" src="SSB4U-NewStockIcons/stock_90_ryu_00.png">
 
   <br>
   <hr>
@@ -60,6 +63,21 @@ window.onload = function() {
       var ctx=c[0][0].getContext("2d");
       ctx.drawImage(img,1,-1-i*66);
     }
+
+    var img=document.getElementById("thing_lucas");
+    var c=d3.select("#wrapper").append("canvas").attr({style:"border: 1px solid black", width:"70", height:"65"});
+    var ctx=c[0][0].getContext("2d");
+    ctx.drawImage(img,4,0);
+
+    var img=document.getElementById("thing_roy");
+    var c=d3.select("#wrapper").append("canvas").attr({style:"border: 1px solid black", width:"70", height:"65"});
+    var ctx=c[0][0].getContext("2d");
+    ctx.drawImage(img,4,0);
+
+    var img=document.getElementById("thing_ryu");
+    var c=d3.select("#wrapper").append("canvas").attr({style:"border: 1px solid black", width:"70", height:"65"});
+    var ctx=c[0][0].getContext("2d");
+    ctx.drawImage(img,4,0);
 };
 </script>
 

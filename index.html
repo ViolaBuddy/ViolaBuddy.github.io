@@ -36,7 +36,7 @@
       <li>Zoom filter: below the graph, click and drag the bar to scroll through the graph. Alternately, click the handles to expand or narrow the view.</li>
       <li>Details of a fighter: clicking on a fighter's bar shows his, her, its, or their details below the main graph.</li>
     </ul>
-    <p>Images are from <a href="http://www.spriters-resource.com/3ds/supersmashbrosfornintendo3ds/sheet/62681/">The Spriter's Resource</a> and <a href="http://smashbros-miiverse.com/">http://smashbros-miiverse.com/</a></p>
+    <p>Images are from <a href="http://www.spriters-resource.com/3ds/supersmashbrosfornintendo3ds/sheet/62681/">The Spriter's Resource</a> and <a href="http://smashbros-miiverse.com/">http://smashbros-miiverse.com/</a>. Lucas, Roy, and Ryu's stock icons are from <a href="http://www.reddit.com/r/smashbros/comments/39pp0a/royryulucas_stock_icons/">http://www.reddit.com/r/smashbros/comments/39pp0a/royryulucas_stock_icons/</a>.</p>
   </div>
   <div id="main">
     <div id="form_wrapper">
@@ -103,6 +103,7 @@
   var UNIVERSES = {};
   var COLORS = {ThreeDS_sel: "#FF8844", ThreeDS: "#9A3334",
                 WiiU_sel: "#4488FF", WiiU: "#33347A"};
+  var MASK_PADDING = 5;
 
   /*GLOBAL VARIABLES*/
   var currentGenre, currentStartYear, currentEndYear;
@@ -176,9 +177,9 @@
     //create mask
     theMask = largeGraph.append("clipPath").attr("id", "the_clip_path");
     theMask.append("rect").attr({
-      x:EDGES.LEFT,
+      x:EDGES.LEFT - MASK_PADDING,
       y:EDGES.TOP,
-      width: (EDGES.RIGHT - EDGES.LEFT),
+      width: (EDGES.RIGHT - EDGES.LEFT + MASK_PADDING * 2),
       height: EDGES.BOTTOM
     });
 
