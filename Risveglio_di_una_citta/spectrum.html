@@ -1,0 +1,192 @@
+<html>
+<head>
+		<meta charset="UTF-8">
+		<title>Risveglio di una Citta</title>
+		<style>
+			body {
+				padding: 1em;
+				text-align: justify;
+			}
+
+			header {
+				text-align: center;
+			}
+
+			a { 
+				color: #0000dd;
+				cursor: pointer;
+				text-decoration: underline;
+			}
+			a:hover { 
+				color: #9999aa;
+			}
+			a:active {
+				color: #333366;
+			}
+			
+			.axis_label {
+				font-size: 18px;
+				text-anchor: middle;
+				font-weight:bold;
+			}
+
+			.resize path {
+				fill: #DDD299;
+				stroke: #333333;
+				stroke-width: 0.5px;
+			}
+
+			.axis path, .axis line {
+				fill: none;
+				stroke: #000000;
+				shape-rendering: crispEdges;
+			}
+
+			canvas {
+				border: 1px solid black;
+				display: block;
+				margin: auto;
+			}
+
+			#foreward {
+				width:1150;
+				margin:auto;
+			}
+    
+		</style>
+		<script src="d3.min.js" charset="utf-8"></script>
+</head>
+<body>
+
+	<div id="main">
+		<div id="foreward">
+			<h2>A visualization of <cite>Risveglio di una Citt&agrave;</cite></h2>
+			<p>Below is a visualization of the first seven bars of <cite>Risveglio di una Citt&agrave;</cite> by Luigi Russolo, as performed by Daniele Lombardi. The x-axis represents time, the y-axis represents pitch-space, and the darkness of each block represents magnitude of that component of frequency at that time (black is loudest). The piece is broken into half-second intervals, and columns representing these intervals should appear in real time, every half-second. If not, ensure that JavaScript is enabled. To restart the visualization, press this button: <button id="the_restart">Start over</button></p>
+		</div>
+
+		<canvas id="the_map"></canvas>
+
+		<script>
+		var theCanvas = d3.select("#the_map");
+		var heightCanvas = 500, widthCanvas = 1000;
+		var paddingCanvas = 75;
+		theCanvas.attr({"height": heightCanvas + 2*paddingCanvas, "width": widthCanvas + 2*paddingCanvas});
+
+		var ctx = theCanvas.node().getContext("2d");
+
+		var sourceFiles = [];
+		var data = [];
+		var dataFlat = [];
+		var xScale, yScale, zScale;
+		var intervalID = undefined;
+		var j = 0; //counter for doStuff
+
+		for (var i = 0; i <= 285; i+=5) {
+			var string = i.toString();
+			while(string.length < 3) {
+				string = "0" + string;
+			}
+			sourceFiles.push("spectrum" + string + ".txt");
+			data.push(null);
+		};
+
+		sourceFiles.forEach(function(d, i) {
+			d3.tsv(d, function(thisData) {
+				data[i] = thisData;
+				setUpStuff();
+			})
+		});
+
+		function setUpStuff() {
+			//if not ready, just return
+			for (var i = data.length - 1; i >= 0; i--) {
+				if(data[i] === null) return;
+			}
+
+			//flatten data
+			data.forEach(function(outerD, i){
+				outerD.forEach(function(d) {
+					dataFlat.push({"decisecond": i*5, "freq": +d["Frequency (Hz)"], "dB": +d["Level (dB)"]});
+				});
+			});
+
+			xScale = d3.scale.linear().domain([
+				d3.min(dataFlat, function(d) {return d.decisecond;}),
+				d3.max(dataFlat, function(d) {return d.decisecond;})
+				]).range([paddingCanvas, paddingCanvas + widthCanvas]);
+			yScale = d3.scale.log().domain([
+				d3.min(dataFlat, function(d) {return d.freq;}),
+				d3.max(dataFlat, function(d) {return d.freq;})
+				]).range([paddingCanvas + heightCanvas, paddingCanvas]);
+			zScale = d3.scale.linear().domain([
+				d3.min(dataFlat, function(d) {return d.dB;}),
+				d3.max(dataFlat, function(d) {return d.dB;})
+				]).range([0, 1]);
+
+			d3.select("#the_restart").on("click", pressButton);
+			pressButton();
+		}
+
+		function pressButton() {
+			j = 0;
+			if(intervalID != null) clearInterval(intervalID);
+
+			ctx.clearRect(0, 0, widthCanvas + 2*paddingCanvas, heightCanvas + 2*paddingCanvas);
+			drawAxes();
+			intervalID = setInterval(doStuff, 500);
+		}
+
+		function drawAxes() {
+			var LEFT = xScale(0) - 5;
+
+			for (var i = 4; i < 22000; i *= 2) {
+				var yPos = yScale(i);
+
+				ctx.fillStyle = "#6666BB";
+				ctx.textAlign = "right";
+				ctx.fillText(i + " Hz", LEFT, yPos);
+			};
+
+
+			var BOTTOM = yScale(2);
+			for (var i = 0; i < 29; i+=5) {
+				var xPos = xScale(i*10);
+
+				ctx.fillStyle = "#6666BB";
+				ctx.textAlign = "left";
+				ctx.fillText(i + " s", xPos, BOTTOM);
+			};
+		}
+
+		function doStuff(){
+			var xDist = Math.ceil(widthCanvas / data.length) - 1;
+			var tempDataFlat = dataFlat.slice(j, j+data[0].length);
+
+			tempDataFlat.forEach(function(d, i) {
+				var xPlace = xScale(d.decisecond);
+				var yPlace = yScale(d.freq);
+				var zPlace = zScale(d.dB) * 10;
+
+				//find next y place
+				if ( tempDataFlat[i+1] === undefined) {
+					yDist = paddingCanvas - yPlace;
+				} else {
+					yDist = yScale(tempDataFlat[i+1].freq) - yPlace;
+				}
+
+				var theIntensity = Math.round(0xff * (1-zScale(d.dB) ) );
+				ctx.fillStyle = "rgb(" + theIntensity + "," + theIntensity + "," + theIntensity + ")";
+				ctx.fillRect(xPlace, yPlace, xDist, yDist);
+			});
+
+			j += data[0].length;
+			if ( j >= dataFlat.length ) { clearInterval(intervalID); }
+		}
+
+		</script>
+	</div>
+</body>
+</html>
+
+
+
