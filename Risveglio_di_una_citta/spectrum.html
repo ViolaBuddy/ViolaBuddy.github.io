@@ -90,9 +90,11 @@
 		var vLine = theSvg.append("line");
 		var theLabel = theSvg.append("text");
 
-		hLine.attr({ "x1": paddingCanvas, "x2":widthCanvas + paddingCanvas, "y1": OFFSCREEN, "y2": OFFSCREEN });
-		vLine.attr({ "y1": paddingCanvas, "y2":heightCanvas + paddingCanvas, "x1": OFFSCREEN, "x2": OFFSCREEN });
-		theLabel.attr({ "x": 30, "y": paddingCanvas/2 });
+		hLine.attr({ "x1": paddingCanvas, "x2":widthCanvas + paddingCanvas, "y1": OFFSCREEN, "y2": OFFSCREEN,
+			"stroke-width": "3px", "stroke": "#FF6666" });
+		vLine.attr({ "y1": paddingCanvas, "y2":heightCanvas + paddingCanvas, "x1": OFFSCREEN, "x2": OFFSCREEN,
+			"stroke-width": "3px", "stroke": "#FF6666"});
+		theLabel.attr({ "x": 30, "y": paddingCanvas/2, "stroke-width": "2px", "font-weight": "bold", "fill": "#FF6666" });
 
 		var sourceFiles = [];
 		var data = [];
