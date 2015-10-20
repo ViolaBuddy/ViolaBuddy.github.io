@@ -24,28 +24,28 @@
 				color: #333366;
 			}
 			
-			.axis_label {
+			.d {
 				font-size: 18px;
 				text-anchor: middle;
 				font-weight:bold;
+
 			}
 
-			.resize path {
-				fill: #DDD299;
-				stroke: #333333;
-				stroke-width: 0.5px;
-			}
-
-			.axis path, .axis line {
-				fill: none;
-				stroke: #000000;
-				shape-rendering: crispEdges;
-			}
-
-			canvas {
+			svg {
 				border: 1px solid black;
 				display: block;
 				margin: auto;
+			}
+
+			line {
+				stroke-width: 3px;
+				stroke: #FF6666;
+			}
+
+			text {
+				stroke-width: 2px;
+				font-weight: bold;
+				fill: #FF6666;
 			}
 
 			#foreward {
@@ -61,25 +61,46 @@
 	<div id="main">
 		<div id="foreward">
 			<h2>A visualization of <cite>Risveglio di una Citt&agrave;</cite></h2>
-			<p>Below is a visualization of the first seven bars of <cite>Risveglio di una Citt&agrave;</cite> by Luigi Russolo, as performed by Daniele Lombardi. The x-axis represents time, the y-axis represents pitch-space, and the darkness of each block represents magnitude of that component of frequency at that time (black is loudest). The piece is broken into half-second intervals, and columns representing these intervals should appear in real time, every half-second. If not, ensure that JavaScript is enabled. To restart the visualization, press this button: <button id="the_restart">Start over</button></p>
+			<p>Below is a visualization of the first seven bars of <cite>Risveglio di una Citt&agrave;</cite> by Luigi Russolo, as performed by Daniele Lombardi. The x-axis represents time, the y-axis represents pitch-space, and the darkness of each block represents magnitude of that component of frequency at that time (black is loudest). The piece is broken into half-second intervals, and columns representing these intervals should appear in real time, every half-second. If not, ensure that JavaScript is enabled. Also, clicking within the plot space will cause a cursor to appear with the approximate note name and time appearing above the plot area (clicking outside the plot area will remove the cursors). To restart the visualization, press this button: <button id="the_restart">Start over</button></p>
 		</div>
 
-		<canvas id="the_map"></canvas>
+		<svg id="the_svg">
+		<foreignObject id="the_foreignobject">
+			<canvas id="the_map"></canvas>
+		</foreignObject>
+		</svg>
 
 		<script>
-		var theCanvas = d3.select("#the_map");
+		var NOTES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+		var C4 = 440 / Math.pow(2, 9/12);
+		var OFFSCREEN = -50;
+
 		var heightCanvas = 500, widthCanvas = 1000;
 		var paddingCanvas = 75;
+
+		var theSvg = d3.select("#the_svg");
+		var theForObj = d3.select("#the_foreignobject");
+		var theCanvas = d3.select("#the_map");
+		theForObj.attr({"height": heightCanvas + 2*paddingCanvas, "width": widthCanvas + 2*paddingCanvas});
 		theCanvas.attr({"height": heightCanvas + 2*paddingCanvas, "width": widthCanvas + 2*paddingCanvas});
+		theSvg.attr({"height": heightCanvas + 2*paddingCanvas, "width": widthCanvas + 2*paddingCanvas});
 
 		var ctx = theCanvas.node().getContext("2d");
+		var hLine = theSvg.append("line");
+		var vLine = theSvg.append("line");
+		var theLabel = theSvg.append("text");
+
+		hLine.attr({ "x1": paddingCanvas, "x2":widthCanvas + paddingCanvas, "y1": OFFSCREEN, "y2": OFFSCREEN });
+		vLine.attr({ "y1": paddingCanvas, "y2":heightCanvas + paddingCanvas, "x1": OFFSCREEN, "x2": OFFSCREEN });
+		theLabel.attr({ "x": 30, "y": paddingCanvas/2 });
 
 		var sourceFiles = [];
 		var data = [];
 		var dataFlat = [];
 		var xScale, yScale, zScale;
 		var intervalID = undefined;
-		var j = 0; //counter for doStuff
+		var xDist;
+		var j = 0; //counter for makeColumn
 
 		for (var i = 0; i <= 285; i+=5) {
 			var string = i.toString();
@@ -122,9 +143,13 @@
 				d3.min(dataFlat, function(d) {return d.dB;}),
 				d3.max(dataFlat, function(d) {return d.dB;})
 				]).range([0, 1]);
+			xDist = Math.ceil(widthCanvas / data.length) - 1;
+
+			hLine.attr({ "x2":widthCanvas + paddingCanvas + xDist });
 
 			d3.select("#the_restart").on("click", pressButton);
 			pressButton();
+			theSvg.on("click", doClick);
 		}
 
 		function pressButton() {
@@ -132,8 +157,14 @@
 			if(intervalID != null) clearInterval(intervalID);
 
 			ctx.clearRect(0, 0, widthCanvas + 2*paddingCanvas, heightCanvas + 2*paddingCanvas);
+
+			ctx.fillStyle = "#EEEECC";
+			ctx.fillRect(0, 0, widthCanvas + 2*paddingCanvas, heightCanvas + 2*paddingCanvas);
+			ctx.fillStyle = "#FFFFFF";
+			ctx.fillRect(paddingCanvas, paddingCanvas, widthCanvas+xDist, heightCanvas);
+
 			drawAxes();
-			intervalID = setInterval(doStuff, 500);
+			intervalID = setInterval(makeColumn, 500);
 		}
 
 		function drawAxes() {
@@ -158,8 +189,7 @@
 			};
 		}
 
-		function doStuff(){
-			var xDist = Math.ceil(widthCanvas / data.length) - 1;
+		function makeColumn(){
 			var tempDataFlat = dataFlat.slice(j, j+data[0].length);
 
 			tempDataFlat.forEach(function(d, i) {
@@ -181,6 +211,47 @@
 
 			j += data[0].length;
 			if ( j >= dataFlat.length ) { clearInterval(intervalID); }
+		}
+
+		function doClick() {
+			var mouseXY = d3.mouse(this);
+			if(mouseXY[0] < paddingCanvas || mouseXY[0] > widthCanvas + paddingCanvas + xDist ||
+				mouseXY[1] < paddingCanvas || mouseXY[1] > heightCanvas + paddingCanvas) {
+
+				hLine.transition().duration(500).attr({ "y1": OFFSCREEN, "y2": OFFSCREEN });
+				vLine.transition().duration(500).attr({ "x1": OFFSCREEN, "x2": OFFSCREEN });
+				theLabel.text("");
+			} else {
+				var time = (xScale.invert(mouseXY[0])/10).toFixed(2);
+				var freq = yScale.invert(mouseXY[1]);
+
+				var pitch = freqToNote(freq);
+
+				hLine.transition().duration(500).attr({ "y1": mouseXY[1], "y2": mouseXY[1] });
+				vLine.transition().duration(500).attr({ "x1": mouseXY[0], "x2": mouseXY[0] });
+				theLabel.text(pitch + ", " + time + " s" );
+			}
+		}
+
+		function freqToNote(f) {
+			function log2(n) {
+				return Math.log(n) / Math.log(2);
+			}
+			function mod(n, m) {
+				r = n % m;
+
+				while (r < 0) {
+					r += m;
+				}
+
+				return r;
+			}
+			var notesApart = Math.round(12 * log2(f / C4));
+
+			var noteName = NOTES[mod(notesApart, NOTES.length)];
+			var octaveNumber = Math.floor(notesApart / NOTES.length) + 4;
+
+			return noteName + octaveNumber;
 		}
 
 		</script>
