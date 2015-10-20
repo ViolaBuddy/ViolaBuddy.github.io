@@ -37,15 +37,24 @@
 				margin: auto;
 			}
 
+			svg, g, canvas, foreignObject, #main {
+				overflow: hidden;
+				position:relative;
+			}
+
 			line {
 				stroke-width: 3px;
 				stroke: #FF6666;
 			}
 
 			text {
-				stroke-width: 2px;
 				font-weight: bold;
 				fill: #FF6666;
+			}
+
+			#cursor_span {
+				font-weight: bold;
+				color: #FF6666;
 			}
 
 			#foreward {
@@ -61,13 +70,18 @@
 	<div id="main">
 		<div id="foreward">
 			<h2>A visualization of <cite>Risveglio di una Citt&agrave;</cite></h2>
-			<p>Below is a visualization of the first seven bars of <cite>Risveglio di una Citt&agrave;</cite> by Luigi Russolo, as performed by Daniele Lombardi. The x-axis represents time, the y-axis represents pitch-space, and the darkness of each block represents magnitude of that component of frequency at that time (black is loudest). The piece is broken into half-second intervals, and columns representing these intervals should appear in real time, every half-second. If not, ensure that JavaScript is enabled. Also, clicking within the plot space will cause a cursor to appear with the approximate note name and time appearing above the plot area (clicking outside the plot area will remove the cursors). To restart the visualization, press this button: <button id="the_restart">Start over</button></p>
+			<p>Below is a visualization of the first seven bars of <cite>Risveglio di una Citt&agrave;</cite> by Luigi Russolo, as performed by Daniele Lombardi. The x-axis represents time, the y-axis represents pitch-space, and the darkness of each block represents magnitude of that component of frequency at that time (black is loudest). The piece is broken into half-second intervals, and columns representing these intervals should appear in real time, every half-second. If not, ensure that JavaScript is enabled and that your browser can handle both SVG and canvas elements.</p>
+			<p>Additionally, clicking within the plot space will cause a cursor to appear with the approximate note name and time appearing above the plot area (clicking outside the plot area will remove the cursor). Some browsers (notably, Google Chrome) don't handle overlaying this cursor on top of the chart; clicking should nonetheless cause the note name and time should still appear.</p>
+			<p>To restart the visualization, press this button: <button id="the_restart">Start over</button></p>
+			<p>Cursor at: <span id="cursor_span"></span></p>
 		</div>
 
 		<svg id="the_svg">
-		<foreignObject id="the_foreignobject">
-			<canvas id="the_map"></canvas>
-		</foreignObject>
+			<g>
+			<foreignObject id="the_foreignobject" style="display:inline-block">
+				<canvas id="the_map" style="display:inline-block"></canvas>
+			</foreignObject>
+			</g>
 		</svg>
 
 		<script>
@@ -88,13 +102,16 @@
 		var ctx = theCanvas.node().getContext("2d");
 		var hLine = theSvg.append("line");
 		var vLine = theSvg.append("line");
-		var theLabel = theSvg.append("text");
+		var theLabelSpan = d3.select("#cursor_span");
 
-		hLine.attr({ "x1": paddingCanvas, "x2":widthCanvas + paddingCanvas, "y1": OFFSCREEN, "y2": OFFSCREEN,
-			"stroke-width": "3px", "stroke": "#FF6666" });
-		vLine.attr({ "y1": paddingCanvas, "y2":heightCanvas + paddingCanvas, "x1": OFFSCREEN, "x2": OFFSCREEN,
-			"stroke-width": "3px", "stroke": "#FF6666"});
-		theLabel.attr({ "x": 30, "y": paddingCanvas/2, "stroke-width": "2px", "font-weight": "bold", "fill": "#FF6666" });
+		hLine.attr({ "x1": paddingCanvas, "x2":widthCanvas + paddingCanvas, "y1": OFFSCREEN, "y2": OFFSCREEN });
+		vLine.attr({ "y1": paddingCanvas, "y2":heightCanvas + paddingCanvas, "x1": OFFSCREEN, "x2": OFFSCREEN });
+
+		ctx.fillStyle = "#000000";
+		ctx.font="50px serif";
+		ctx.textAlign = "center";
+		ctx.fillText("Loading...", (widthCanvas + 2 * paddingCanvas) / 2, (heightCanvas + 2 * paddingCanvas) / 2);
+		ctx.font="10px sans-serif";
 
 		var sourceFiles = [];
 		var data = [];
@@ -222,7 +239,8 @@
 
 				hLine.transition().duration(500).attr({ "y1": OFFSCREEN, "y2": OFFSCREEN });
 				vLine.transition().duration(500).attr({ "x1": OFFSCREEN, "x2": OFFSCREEN });
-				theLabel.text("");
+				//theLabel.text("");
+				theLabelSpan.text("");
 			} else {
 				var time = (xScale.invert(mouseXY[0])/10).toFixed(2);
 				var freq = yScale.invert(mouseXY[1]);
@@ -231,7 +249,8 @@
 
 				hLine.transition().duration(500).attr({ "y1": mouseXY[1], "y2": mouseXY[1] });
 				vLine.transition().duration(500).attr({ "x1": mouseXY[0], "x2": mouseXY[0] });
-				theLabel.text(pitch + ", " + time + " s" );
+				//theLabel.text(pitch + ", " + time + " s" );
+				theLabelSpan.text(pitch + ", " + time + " s" );
 			}
 		}
 
