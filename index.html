@@ -14,7 +14,7 @@
 
 <div id="wrapper">
   <div id="blurb">
-    <p>This is a graph of the characters I have played against online in Super Smash Bros. for 3DS and Wii U in 1-on-1 For Glory mode. The blue portion of each bar is from the Wii U version, and the red portion of each bar is from the 3DS version. For reference, the first match recorded was at the end of March 2015<!--, and the last match recorded was on <span>&ldots;</span>-->. It might be interesting to compare this chart to Event Hubs's <a href="http://www.eventhubs.com/tiers/ssb4/">Tier List</a> and especially its <a href="http://www.eventhubs.com/stats/ssb4/">Character Popularity List</a>.</p>
+    <p>This is a graph of the characters I have played against online in Super Smash Bros. for 3DS and Wii U in 1-on-1 For Glory mode. The blue portion of each bar is from the Wii U version, and the red portion of each bar is from the 3DS version. For reference, the first match recorded was at the end of March 2015<span id="last-date"></span>. It might be interesting to compare this chart to Event Hubs's <a href="http://www.eventhubs.com/tiers/ssb4/">Tier List</a> and especially its <a href="http://www.eventhubs.com/stats/ssb4/">Character Popularity List</a>.</p>
     <p>There are a few options to filter, order, and highlight the results <a id="toggle_filter_instructions">(Click to hide)</a>:</p>
     <ul id="filter_instructions">
       <li>Filter by details:
@@ -36,7 +36,7 @@
       <li>Zoom filter: below the graph, click and drag the bar to scroll through the graph. Alternately, click the handles to expand or narrow the view.</li>
       <li>Details of a fighter: clicking on a fighter's bar shows his, her, its, or their details below the main graph.</li>
     </ul>
-    <p>Images are from <a href="http://www.spriters-resource.com/3ds/supersmashbrosfornintendo3ds/sheet/62681/">The Spriter's Resource</a> and <a href="http://smashbros-miiverse.com/">http://smashbros-miiverse.com/</a>. Lucas, Roy, and Ryu's stock icons are from <a href="http://www.reddit.com/r/smashbros/comments/39pp0a/royryulucas_stock_icons/">http://www.reddit.com/r/smashbros/comments/39pp0a/royryulucas_stock_icons/</a>.</p>
+    <p>Images are from <a href="http://www.spriters-resource.com/3ds/supersmashbrosfornintendo3ds/sheet/62681/">The Spriter's Resource</a> and <a href="http://smashbros-miiverse.com/">http://smashbros-miiverse.com/</a>.</p>
   </div>
   <div id="main">
     <div id="form_wrapper">
@@ -158,7 +158,16 @@
   })
 
   var data;
-  d3.json("smashData.json", function (theData) {
+  d3.json("smashData.json", function (rawData) {
+    theData = rawData.mainData;
+
+    //format date
+    var dateFormat = d3.time.format("%Y-%m-%d");
+    var formattedDate = dateFormat.parse(rawData["lastDate"]);
+    var wordDateFormat = d3.time.format("%B %-d, %Y");
+    d3.select("#last-date").html(" and the last match currently recorded was on " + wordDateFormat(formattedDate));
+
+
     data = theData;
     //universe_select
     theData.forEach(function(d) {
@@ -203,13 +212,16 @@
     yAxis = d3.svg.axis().scale(yScale).orient("left");
     largeGraph.append("g").attr("class", "axis").attr("transform", "translate(" + EDGES.LEFT + ", 0)").call(yAxis);
     xScale = d3.scale.ordinal().domain(theData.map(function(d) { return d.name; } ));
-    axisPictures = largeGraph.append("g").attr("clip-path", "url(#the_clip_path)")
+    axisPictures = largeGraph.append("g").attr("clip-path", "url(#the_clip_path)").classed("image_axis", true)
       .selectAll("image").data(theData).enter().append("image")
       .attr({"xlink:href": function(d){ return "Images/stock/" + d.name.toLowerCase().replace(/\./g, "").replace(/ /g, "_").replace("&", "and") + ".png";},
           "width": headSize,
           "height": headSize,
           "y": yScale(0) + headSize/2
-        });
+        })
+      .on("click", function(d){
+        activateFighter(d);
+      });
 
     //create bars
     barsgU = largeGraph.append("g");
@@ -291,7 +303,7 @@
     var r1 = deltaR + r0;
 
     xScale.rangePoints([r0, r1], 1);
-    barSize = BAR_SIZE_ZERO * deltaS / deltaX;
+    barSize = BAR_SIZE_ZERO * deltaS / deltaX - 1;
 
     barsU.attr("width", barSize);
     bars3.attr("width", barSize);

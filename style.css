@@ -20,7 +20,7 @@ a {
   text-decoration: underline;
 }
 
-rect {
+rect, .image_axis image {
   cursor: pointer;
 }
 
@@ -55,7 +55,7 @@ svg text{
 
 hr {
   border: 0;
-  border-bottom: 1px dotted  #FF3333;
+  border-bottom: 1px dotted #FF3333;
 }
 
 label {
