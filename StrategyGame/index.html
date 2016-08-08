@@ -1,0 +1,51 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Aladdin (Maybe?)</title>
+
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div id="header">
+		<h1>Emo-to-Kan (絵文-と-漢)</h1>
+	</div>
+	<div id="game_main">
+		<div id="left">
+			<table id="left_table">
+			</table>
+		</div>
+		<div id="right">
+			<h2 id="right_header"></h2>
+			<div id="right_info"></div>
+			<div id="right_actions"></div>
+		</div>
+	</div>
+	<script src="Queue.js"></script> <!--http://code.stephenmorley.org/javascript/queues/-->
+	<script src="https://code.jquery.com/jquery-3.0.0.min.js"
+		integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="
+		crossorigin="anonymous"></script>
+	<script src="game.js"></script>
+	<script>
+	function main() {
+		var left_table = $("#left_table");
+		for (var y = 0; y < Y_TILES; y++) {
+			var row = $("<tr></tr>").prop("id", "row_" + y);
+			left_table.append(row);
+			map_tile.push([]);
+			for (var x = 0; x < X_TILES; x++) {
+				map_tile[y].push(new Tile(y, x, Tiletype.EMPTY));
+			}
+		};	
+
+		var spear = new Weapon("Spear", 3, Directionality.FERZ);
+		var tome = new Weapon("Tome", 2, Directionality.DABBABA);
+
+		var aladdin = new Character("Aladdin", "\u{2600}", "日", {HP: 30, movement: 3}, 0, 1, Alignment.PLAYER, spear);
+		var badroulbadour = new Character("Badroulbadour", "\u{1F319}", "月", {HP: 30, movement: 2}, 0, 7, Alignment.PLAYER, tome);
+		var sorcerer = new Character("Sorcerer", "\u{2601}", "云", {HP: 30, movement: 3}, 3, 0, Alignment.ENEMY, spear);
+		var wazir = new Character("Wazir", "\u{1F300}", "飓", {HP: 30, movement: 2}, 3, 6, Alignment.ENEMY, tome);
+	}
+	main();
+	</script>
+</body>
+</html>

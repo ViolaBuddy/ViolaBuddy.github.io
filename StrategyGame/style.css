@@ -1,0 +1,128 @@
+body {
+	height: 100%;
+}
+
+table {
+	padding: 0px;
+	margin: 2px;
+	
+	/* center horizontally */
+	margin-left: auto;
+	margin-right: auto;
+
+	/* center vertically */
+	position: relative;
+}
+
+td {
+	padding: 2px;
+	margin: 0px;
+	border: 1px solid #aaaaaa;
+	border-radius: 10px;
+	width: 65px;
+	min-width: 65px;
+	max-width: 65px;
+	height: 65px;
+	min-height: 65px;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	text-align: center;
+	cursor: default;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.tile_dark {
+	background-color: #eeddaa;
+}
+
+.tile_light {
+	background-color: #ffeecc;
+}
+
+#header {
+	padding: 0px;
+	margin: 0px;
+	height: 50px;
+}
+
+#game_main {
+	margin: 2px;
+	margin-left: auto;
+	margin-right: auto;
+
+	padding: 2px;
+	border: 1px solid #55cc55;
+	width: 95%;
+	height: calc(100% - 122px);
+}
+
+#left {
+	float: left;
+	border: 1px solid #cc6666;
+	width: 70%;
+	height: 100%;
+	overflow: scroll;
+}
+
+#right {
+	float: right;
+	padding: 8px;
+	border: 1px solid #cc6666;
+	width: calc(30% - 6px - 16px);
+	height: calc(100% - 16px);
+	overflow: scroll;
+}
+
+.character_container {
+	/*http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting*/
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;           /* Non-prefixed version, currently not supported by any browser */
+}
+.character_symbol {
+	font-family: 'Symbola', 'Segoe UI Symbol', 'Microsoft YaHei';
+	font-size: 35px;
+	margin: 0px;
+	padding: 0px;
+}
+.character_name {
+	font-size: 9px;
+	color: #007755;
+	font-family: arial, sans-serif;
+}
+
+.tile_accessible.tile_dark {
+	background-color: #aaaadd;
+}
+.tile_accessible.tile_light {
+	background-color: #ccccee;
+}
+.tile_attackable.tile_dark {
+	background-color: #cc8888;
+}
+.tile_attackable.tile_light {
+	background-color: #eebbbb;
+}
+.tile_selected {
+	background-color: #bbeeee;
+}
+
+.alignment_player .character_symbol {
+	color: #0033bb;
+}
+.alignment_player .character_name {
+	color: #0033bb;
+}
+
+.alignment_enemy .character_symbol {
+	color: #aa1100;
+}
+.alignment_enemy .character_name {
+	color: #aa1100;
+}
