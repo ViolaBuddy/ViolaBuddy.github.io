@@ -56,17 +56,23 @@ td {
 	padding: 2px;
 	border: 1px solid #55cc55;
 	width: 95%;
-	height: calc(100% - 122px);
+	height: calc(100% - 90px);
 }
 
 #left {
 	float: left;
+	position: relative;
 	border: 1px solid #cc6666;
 	width: 70%;
 	height: 100%;
 	overflow: scroll;
 }
-
+#left_inner {
+	height: auto;
+	margin: 0px;
+	padding: 0px;
+	position: relative;
+}
 #right {
 	float: right;
 	padding: 8px;
@@ -74,6 +80,82 @@ td {
 	width: calc(30% - 6px - 16px);
 	height: calc(100% - 16px);
 	overflow: scroll;
+}
+
+#dropdown {
+	border: 1px solid #333333;
+	background: #f8f8f8;
+	border-radius: 3px;
+	width: 80px;
+	padding: 0px;
+	margin: 0px;
+	position: absolute;
+}
+#dropdown ul {
+	list-style: none;
+	padding: 0px;
+	margin: 3px;
+}
+#dropdown ul button {
+	width: 100%;
+}
+
+
+#battle_forecast {
+	border: 3px solid #333333;
+	background: #f8f8f8;
+	border-radius: 3px;
+	width: 60%;
+	height: 60%;
+	padding: 1px;
+	margin: 0px;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	position: fixed;
+}
+#battle_forecast_left {
+	border: 1px solid #333333;
+	background: #f8f8f8;
+	border-radius: 3px;
+	width: calc(50% - 3px);
+	height: calc(100% - 44px);
+	padding: 0px;
+	margin: 0px;
+	float:left;
+}
+#battle_forecast_right {
+	border: 1px solid #333333;
+	background: #f8f8f8;
+	border-radius: 3px;
+	width: calc(50% - 2px);
+	height: calc(100% - 44px);
+	padding: 0px;
+	margin: 0px;
+	float:right;
+}
+#battle_forecast_bottom {
+	border: 1px solid #333333;
+	background: #f8f8f8;
+	border-radius: 3px;
+	width: calc(100% - 2px);
+	height: 40;
+	padding: 0px;
+	margin: 0px;
+	clear:both;
+}
+#battle_forecast_bottom>button {
+	height: calc(100% - 4px);
+	margin: 4px;
+	width:calc(50% - 10px);
+}
+#battle_forecast_left>.character_container{
+	width:100%;
+	text-align: center;
+}
+#battle_forecast_right>.character_container{
+	width:100%;
+	text-align: center;
 }
 
 .character_container {
@@ -97,6 +179,23 @@ td {
 	font-family: arial, sans-serif;
 }
 
+.class_list_div {
+}
+
+dl {
+	text-align: left;
+	overflow-y: auto;
+}
+dt {
+	margin-left: 2px;
+	padding-bottom: 2px;
+	border-bottom: 1px solid black;
+}
+dd {
+	padding-left: 2px;
+	border-left: 1px solid black;
+}
+
 .tile_accessible.tile_dark {
 	background-color: #aaaadd;
 }
@@ -111,6 +210,9 @@ td {
 }
 .tile_selected {
 	background-color: #bbeeee;
+}
+.tile_attacked {
+	background-color: #ff0000; /*todo*/
 }
 
 .alignment_player .character_symbol {

@@ -1,18 +1,75 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Aladdin (Maybe?)</title>
+	<title>Thinggy</title>
 
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
 	<div id="header">
-		<h1>Emo-to-Kan (絵文-と-漢)</h1>
+		<h1>Thinggy</h1>
 	</div>
 	<div id="game_main">
 		<div id="left">
-			<table id="left_table">
-			</table>
+			<div id="left_inner"> <!-- we need something inside the scrolling #left div to allow #dropdown to be absolutely positioned -->
+				<table id="left_table">
+				</table>
+				<div id="dropdown">
+					<ul>
+						<li><button id="fight_btn">Fight</button></li>
+						<li><button id="wait_btn">Wait</button></li>
+					</ul>
+				</div>
+
+				<div id="battle_forecast">
+					<div id="battle_forecast_left">
+						
+						<div class="character_container">
+							<div class="character_symbol">
+								&#127824;
+							</div>
+							<div class="character_name">
+								Pear
+							</div>
+							<div class="stats_list_div">
+								<dl class="stats_list">
+									<dt class="stat_dt_HP">HP</dt>
+										<dd class="stat_dd_HP"></dd>
+									<dt class="stat_dt_weapon">Weapon</dt>
+										<dd class="stat_dd_weapon"></dd>
+									<dt class="stat_dt_attack">Attack</dt>
+										<dd class="stat_dd_attack"></dd>
+								</dl>
+							</div>
+						</div>
+					</div>
+					<div id="battle_forecast_right">
+						
+						<div class="character_container">
+							<div class="character_symbol">
+								&#127825;
+							</div>
+							<div class="character_name">
+								Peach
+							</div>
+							<div class="stats_list_div">
+								<dl class="stats_list">
+									<dt class="stat_dt_HP">HP</dt>
+										<dd class="stat_dd_HP"></dd>
+									<dt class="stat_dt_weapon">Weapon</dt>
+										<dd class="stat_dd_weapon"></dd>
+									<dt class="stat_dt_attack">Attack</dt>
+										<dd class="stat_dd_attack"></dd>
+								</dl>
+							</div>
+						</div>
+					</div>
+					<div id="battle_forecast_bottom">
+						<button id="battle_undo_btn">Go back.</button>
+						<button id="battle_confirm_btn">OK!</button>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div id="right">
 			<h2 id="right_header"></h2>
@@ -21,12 +78,14 @@
 		</div>
 	</div>
 	<script src="Queue.js"></script> <!--http://code.stephenmorley.org/javascript/queues/-->
-	<script src="https://code.jquery.com/jquery-3.0.0.min.js"
+	<!--script src="https://code.jquery.com/jquery-3.0.0.min.js"
 		integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="
-		crossorigin="anonymous"></script>
+		crossorigin="anonymous"></script--> 
+	<script src="jquery-2.2.3.min.js"></script>
 	<script src="game.js"></script>
 	<script>
 	function main() {
+
 		var left_table = $("#left_table");
 		for (var y = 0; y < Y_TILES; y++) {
 			var row = $("<tr></tr>").prop("id", "row_" + y);
@@ -40,10 +99,10 @@
 		var spear = new Weapon("Spear", 3, Directionality.FERZ);
 		var tome = new Weapon("Tome", 2, Directionality.DABBABA);
 
-		var aladdin = new Character("Aladdin", "\u{2600}", "日", {HP: 30, movement: 3}, 0, 1, Alignment.PLAYER, spear);
-		var badroulbadour = new Character("Badroulbadour", "\u{1F319}", "月", {HP: 30, movement: 2}, 0, 7, Alignment.PLAYER, tome);
-		var sorcerer = new Character("Sorcerer", "\u{2601}", "云", {HP: 30, movement: 3}, 3, 0, Alignment.ENEMY, spear);
-		var wazir = new Character("Wazir", "\u{1F300}", "飓", {HP: 30, movement: 2}, 3, 6, Alignment.ENEMY, tome);
+		var aladdin = new Character("Sun", "\u{2600}", "日", {HP: 30, movement: 3}, 0, 1, Alignment.PLAYER, spear);
+		var badroulbadour = new Character("Moon", "\u{1F319}", "月", {HP: 30, movement: 2}, 0, 7, Alignment.PLAYER, tome);
+		var sorcerer = new Character("Cloud", "\u{2601}", "云", {HP: 30, movement: 3}, 3, 0, Alignment.ENEMY, spear);
+		var wazir = new Character("Squall", "\u{1F300}", "飓", {HP: 30, movement: 2}, 3, 6, Alignment.ENEMY, tome);
 	}
 	main();
 	</script>

@@ -1,22 +1,23 @@
 //GAME SETUP
 //PLAYER TURN
   // 1. choose character -> show range to move to, show stats
-    // 2. choose destination -> move character, show attackable enemies
+    // 2. choose destination -> move character, show menu
+     // 2.5 choose menu -> show menu ****
       // 3. choose attackable enemy -> show battle forecast
         // 4. choose to attack -> perform attack; have enemy die if necessary, go back to 1.
         // 4. choose another attackable enemy -> hide battle forecast, as in (3.)
       // 3. choose wait -> mark character as moved, go back to 1.
-    // 2. choose another character -> hide range to move to, hide stats, as in (1.)
     // 2. cancel (choose empty square or same character) -> hide range to move to, hide stats, go back to 1.
   // 1. end turn -> mark all characters as unmoved and change to opponent
 //ENEMY TURN
   //(repeat player turn, except current_turn = Alignment.ENEMY)
 
-
-
-
-
-
+hideDropDownMenu();
+hideBattle();
+$("#fight_btn").click(onFight);
+$("#wait_btn").click(onWait);
+$("#battle_confirm_btn").click(onBattleConfirm);
+$("#battle_undo_btn").click(onBattleUndo);
 
 Y_TILES = 8;
 X_TILES = 8;
@@ -26,14 +27,17 @@ Tiletype = {
 GamePhase = {
 	CHOOSE_CHARACTER: "choose a character to move",
 	CHOOSE_DESTINATION: "choose destination to go to",
+	CHOOSE_MENU: "choose a menu item",
 	CHOOSE_ENEMY: "choose an enemy to attack",
-	CHOOSE_ATTACK: "confirm if you want to attack this enemy or not"
+	CHOOSE_ATTACK: "confirm if you want to attack this enemy or not",
+	BATTLE_RESULTS: "click anything to continue"
 } //an enum
 SelectionType = {
 	"UNSELECTED": "tile_unselected", //not actually a class right now, but it could be
 	"SELECTED": "tile_selected",
 	"ACCESSIBLE": "tile_accessible",
-	"ATTACKABLE": "tile_attackable"
+	"ATTACKABLE": "tile_attackable",
+	"ATTACKED": "tile_attacked"
 } //both an enum and a dict that converts to class name
 Alignment = {
 	"PLAYER": "alignment_player",
@@ -119,12 +123,12 @@ Character.prototype.moveTo = function(y, x){
 		source_tile.unbind("click");
 		var thisY = this.y;
 		var thisX = this.x;
-		source_tile.click(function(e){ emptyTileOnClick(thisY, thisX); });
+		source_tile.click(function(e){ emptyTileOnClick(thisY, thisX, e); });
 	}
 	var thisThis = this;
 	map_tile[y][x].contents = this;
 	onscreen_destination_tile.unbind("click");
-	onscreen_destination_tile.click(function(e){ characterOnClick(thisThis); });
+	onscreen_destination_tile.click(function(e){ characterOnClick(thisThis, e); });
 
 	// update the internals of the two tiles and this character
 
@@ -141,7 +145,7 @@ function Tile(y, x, type){
 	this.isSelected = SelectionType.UNSELECTED;
 
 
-	this.onscreen_td = $("<td></td>").prop("id", "tile_" + y + "_" + x).click(function(e){ emptyTileOnClick(y, x); } );
+	this.onscreen_td = $("<td></td>").prop("id", "tile_" + y + "_" + x).click(function(e){ emptyTileOnClick(y, x, e); } );
 	if( this.isLight ) {
 		this.onscreen_td.addClass("tile_light");
 	} else {
@@ -170,7 +174,7 @@ function Weapon(name, power, directionality) {
 }
 
 /** called when clicking on a tile WITH a character on it (or on the character itself) */
-function characterOnClick(character) {
+function characterOnClick(character, event_) {
 	switch(game_phase){
 		case GamePhase.CHOOSE_CHARACTER:
 			selectCharacter(character);
@@ -179,21 +183,19 @@ function characterOnClick(character) {
 		case GamePhase.CHOOSE_DESTINATION:
 			if(selected_char === character) {
 				//if you choose the same tile again, it's actually choosing the tile, not the character
-				emptyTileOnClick(selected_char.y , selected_char.x);
+				emptyTileOnClick(selected_char.y , selected_char.x, event_);
 			}
 			// else, do nothing
+			break;
+		case GamePhase.CHOOSE_MENU:
+			// do nothing (TODO: something more smart?)
 			break;
 		case GamePhase.CHOOSE_ENEMY:
 			if(map_tile[character.y][character.x].isSelected === SelectionType.ATTACKABLE) {
 				game_phase = GamePhase.CHOOSE_ATTACK;
 				attacked_tile = [character.y, character.x];
-				console.log("Attack!");
 				//TODO: setup attack confirmation screen
-			} else if (selected_char === character) {
-				//if you choose the same tile again, you are waiting here
-				//TODO: mark character as already been moved
-				deselectCharacter();
-				game_phase = GamePhase.CHOOSE_CHARACTER;
+				showBattle(selected_char, character);
 			}
 			break;
 		case GamePhase.CHOOSE_ATTACK:
@@ -205,43 +207,65 @@ function characterOnClick(character) {
 				game_phase = GamePhase.CHOOSE_CHARACTER;
 			}
 			break;
+		case GamePhase.BATTLE_RESULTS:
+			break;
 		default:
 			break;
 	}
 }
 
-/** called when clicking on a tile WITHOUT a character on it */
-function emptyTileOnClick(y, x) {
+/** called when clicking on a tile [y, x] WITHOUT a character on it */
+function emptyTileOnClick(y, x, event_) {
 	switch(game_phase){
 		case GamePhase.CHOOSE_CHARACTER:
 			// do nothing
 			break;
 		case GamePhase.CHOOSE_DESTINATION:
-			if(map_tile[y][x].isSelected === SelectionType.ACCESSIBLE) {
+			if(map_tile[y][x].isSelected === SelectionType.ACCESSIBLE ||
+			   map_tile[y][x].isSelected === SelectionType.SELECTED) {
 				selected_char.moveTo(y, x);
 
-				var attackable_tiles = getAttackable([[y, x]], selected_char.weapon.directionality, [selected_char.y, selected_char.x], selected_char.alignment);
-				attackable_tiles.forEach(function(item){
-					map_tile[item[0]][item[1]].select(SelectionType.ATTACKABLE);
-				});
-				game_phase = GamePhase.CHOOSE_ENEMY;
+				showDropDownMenu(event_);
+				game_phase = GamePhase.CHOOSE_MENU;
+				return;
+
 			} else {
 				// choosing an empty tile cancels
 				deselectCharacter();
 				game_phase = GamePhase.CHOOSE_CHARACTER;
 			}
 			break;
-		case GamePhase.CHOOSE_ENEMY:
-			if(map_tile[y][x].isSelected === SelectionType.ACCESSIBLE) {
-				// choosing a different accessible tile means move there as if it's still CHOOSE_DESTINATION
+		case GamePhase.CHOOSE_MENU:
+			if(map_tile[y][x].isSelected === SelectionType.ACCESSIBLE ||
+			   map_tile[y][x].isSelected === SelectionType.SELECTED) {
+				//if chose a different accessible square, go there as if GamePhase.CHOOSE_DESTINATION
 				game_phase = GamePhase.CHOOSE_DESTINATION;
-				emptyTileOnClick(y, x);
+				emptyTileOnClick(y, x, event_);
 			} else {
 				// choosing an empty tile cancels
+				hideDropDownMenu()
 				selected_char.moveTo(selected_char_from[0], selected_char_from[1]);
-				deselectCharacter();
-				game_phase = GamePhase.CHOOSE_CHARACTER;
+				game_phase = GamePhase.CHOOSE_DESTINATION;
 			}
+			//if nonempty, do nothing
+			break;
+		case GamePhase.CHOOSE_ENEMY:
+			// choosing an empty tile cancels
+			showDropDownMenu(event_);
+			game_phase = GamePhase.CHOOSE_MENU;
+			// get rid of attack square markings
+			// TODO: there's got to be a better way of doing this, but for now:
+			// save the current data
+			var temp = selected_char;
+			var temp_from = [selected_char.y, selected_char.x];
+			// move the character back to its starting square
+			selected_char.moveTo(selected_char_from[0], selected_char_from[1]);
+			// deselect and reselect the character
+			deselectCharacter();
+			selectCharacter(temp);
+			// move the character back to its current tentative square
+			selected_char.moveTo(temp_from[0], temp_from[1]);
+
 			break;
 		case GamePhase.CHOOSE_ATTACK:
 			//if clicking on an empty tile, cancel attack
@@ -251,7 +275,131 @@ function emptyTileOnClick(y, x) {
 			attacked_tile = [null, null];
 			console.log("canceled the attack");
 			game_phase = GamePhase.CHOOSE_ENEMY;
+		case GamePhase.BATTLE_RESULTS:
 		default:
+			break;
+	}
+}
+
+function showDropDownMenu(event_){
+	//TODO! Change to be position of tile, not position of click
+
+	//http://stackoverflow.com/questions/4249648/jquery-get-mouse-position-within-an-element
+	$("#dropdown")
+		.css("display", "block")
+		.css("top", event_.clientY - $("#left_inner").offset().top )
+		.css("left", event_.clientX - $("#left_inner").offset().left );
+}
+
+function hideDropDownMenu(){
+	$("#dropdown").css("display", "none");
+}
+
+function showBattle(lhs, rhs){
+	//TODO: remove classes more correctly
+	$("#battle_forecast_left>.character_container").removeClass("alignment_player alignment_enemy").addClass(lhs.alignment);
+	$("#battle_forecast_left>.character_container>.character_symbol").text(lhs.emoji);
+	$("#battle_forecast_left>.character_container>.character_name").text(lhs.name);
+
+	$("#battle_forecast_right>.character_container").removeClass("alignment_player alignment_enemy").addClass(rhs.alignment);
+	$("#battle_forecast_right>.character_container>.character_symbol").text(rhs.emoji);
+	$("#battle_forecast_right>.character_container>.character_name").text(rhs.name);
+
+	$("#battle_forecast_left .stat_dd_HP").text(lhs.currHP + "/" + lhs.maxHP);
+	$("#battle_forecast_left .stat_dd_weapon").text(lhs.weapon.name);
+	$("#battle_forecast_left .stat_dd_attack").text(lhs.weapon.power);
+
+	$("#battle_forecast_right .stat_dd_HP").text(rhs.currHP + "/" + rhs.maxHP);
+	$("#battle_forecast_right .stat_dd_weapon").text(rhs.weapon.name);
+	$("#battle_forecast_right .stat_dd_attack").text(rhs.weapon.power);
+
+	$("#battle_forecast").css("display", "block");
+}
+
+function hideBattle(){
+	$("#battle_forecast").css("display", "none");
+}
+
+function onFight(event_){
+	switch(game_phase) {
+		case GamePhase.CHOOSE_MENU:
+			var attackable_tiles = getAttackable([[selected_char.y, selected_char.x]], selected_char.weapon.directionality, [selected_char.y, selected_char.x], selected_char.alignment);
+			attackable_tiles.forEach(function(item){
+				map_tile[item[0]][item[1]].select(SelectionType.ATTACKABLE);
+			});
+
+			hideDropDownMenu();
+			game_phase = GamePhase.CHOOSE_ENEMY;
+			break;
+
+		case GamePhase.CHOOSE_CHARACTER:
+		case GamePhase.CHOOSE_DESTINATION:
+		case GamePhase.CHOOSE_ENEMY:
+		case GamePhase.CHOOSE_ATTACK:
+		case GamePhase.BATTLE_RESULTS:
+		default:
+			//do nothing (not the right game phase - the menu shouldn't be visible, anyway)
+			break;
+	}
+}
+
+function onWait(event_){
+	switch(game_phase) {
+		case GamePhase.CHOOSE_MENU:
+			//TODO: mark character as already been moved
+			hideDropDownMenu();
+			deselectCharacter();
+			game_phase = GamePhase.CHOOSE_CHARACTER;
+			break;
+
+		case GamePhase.CHOOSE_CHARACTER:
+		case GamePhase.CHOOSE_DESTINATION:
+		case GamePhase.CHOOSE_ENEMY:
+		case GamePhase.CHOOSE_ATTACK:
+		case GamePhase.BATTLE_RESULTS:
+		default:
+			//do nothing (not the right game phase - the menu shouldn't be visible, anyway)
+			break;
+	}
+}
+
+function onBattleConfirm(event_){
+	switch(game_phase) {
+		case GamePhase.CHOOSE_ATTACK:
+			//TODO: actually do the battle calculations!
+			game_phase = GamePhase.BATTLE_RESULTS;
+			
+			break;
+		case GamePhase.BATTLE_RESULTS:
+			hideBattle();
+			deselectCharacter();
+			//TODO: mark character as moved
+			game_phase = GamePhase.CHOOSE_CHARACTER;
+			break;
+		case GamePhase.CHOOSE_CHARACTER:
+		case GamePhase.CHOOSE_DESTINATION:
+		case GamePhase.CHOOSE_ENEMY:
+		case GamePhase.CHOOSE_MENU:
+		default:
+			//do nothing (not the right game phase - the buttons shouldn't be clickable, anyway)
+			break;
+	}
+}
+function onBattleUndo(event_){
+	switch(game_phase) {
+		case GamePhase.CHOOSE_ATTACK:
+			game_phase = GamePhase.CHOOSE_ENEMY;
+			hideBattle();
+			break;
+		case GamePhase.BATTLE_RESULTS:
+			//visible during battle results, but clicking it does nothing.
+			break;
+		case GamePhase.CHOOSE_CHARACTER:
+		case GamePhase.CHOOSE_DESTINATION:
+		case GamePhase.CHOOSE_ENEMY:
+		case GamePhase.CHOOSE_MENU:
+		default:
+			//do nothing (not the right game phase - the buttons shouldn't be clickable, anyway)
 			break;
 	}
 }
@@ -267,11 +415,6 @@ function selectCharacter(character) {
 	accessible_tiles.forEach(function(item){
 		map_tile[item[0]][item[1]].select(SelectionType.ACCESSIBLE);
 	});
-
-	// var attackable_tiles = getAttackable(accessible_tiles, character.weapon.directionality, [character.y, character.x], character.alignment);
-	// attackable_tiles.forEach(function(item){
-	// 	map_tile[item[0]][item[1]].select(SelectionType.ATTACKABLE);
-	// });
 
 	selected_tile.select(SelectionType.SELECTED);
 
@@ -385,15 +528,19 @@ function getAttackable(accessible_tiles, directionality, excluding, excludingAli
 	var toReturn = [];
 
 	accessible_tiles.map(function(item) {
-		var neighbors = DIRECTIONALITY_FNC[directionality](item[0], item[1], false, true);
+		var neighbors = DIRECTIONALITY_FNC[directionality](item[0], item[1], true, true);
+		// (y, x, includeEmpty=true, includeOccupied=false)
 
 		neighbors.forEach(function(jtem){
 			//go through all found neighbors and filter out anything unwanted
 			// (we call it jtem because it's just an index item, but we already used i so we're at j)
-			if( (excluding && !(jtem[0] === excluding[0] && jtem[1] === excluding[1]) ) && 
-				(excludingAlignment && map_tile[jtem[0]][jtem[1]].contents &&
-					map_tile[jtem[0]][jtem[1]].contents.alignment !== excludingAlignment ) ) {
-				//go through wanted neighbors and remove duplicates by putting not-duplicates into toReturn
+			if (excluding && (jtem[0] === excluding[0] && jtem[1] === excluding[1]) ) {
+				// do nothing if this is the tile we're excluding
+			} else if (excludingAlignment && map_tile[jtem[0]][jtem[1]].contents &&
+					map_tile[jtem[0]][jtem[1]].contents.alignment === excludingAlignment ) {
+				// do nothing if this is a character-filled tile with alignment === excludingAlignment
+			} else {
+				// otherwise, remove duplicates by putting not-duplicates into toReturn
 				for (var i = 0; i < toReturn.length; i++) {
 					if (toReturn[i][0] === jtem[0] && toReturn[i][1] === jtem[1]) {
 						//we found this already; stop.
@@ -403,7 +550,28 @@ function getAttackable(accessible_tiles, directionality, excluding, excludingAli
 				toReturn.push(jtem);
 			}
 		});
+
+		// This code below (commented out) I think does everything correctly
+		// But Boolean algebra is weird so I rewrote this part.
+
+		// neighbors.forEach(function(jtem){
+		// 	//go through all found neighbors and filter out anything unwanted
+		// 	// (we call it jtem because it's just an index item, but we already used i so we're at j)
+		// 	if( (excluding && !(jtem[0] === excluding[0] && jtem[1] === excluding[1]) ) && 
+		// 		(excludingAlignment && map_tile[jtem[0]][jtem[1]].contents &&
+		// 			map_tile[jtem[0]][jtem[1]].contents.alignment !== excludingAlignment ) ) {
+		// 		//go through wanted neighbors and remove duplicates by putting not-duplicates into toReturn
+		// 		for (var i = 0; i < toReturn.length; i++) {
+		// 			if (toReturn[i][0] === jtem[0] && toReturn[i][1] === jtem[1]) {
+		// 				//we found this already; stop.
+		// 				return;
+		// 			};
+		// 		};
+		// 		toReturn.push(jtem);
+		// 	}
+		// });
 	});
 
 	return toReturn;
 }
+
