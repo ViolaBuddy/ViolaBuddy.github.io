@@ -9,6 +9,11 @@
 	<div id="header">
 		<h1>Thinggy</h1>
 	</div>
+	<div id="debug">
+		<p id="debug_state"></p>
+		<h2>Debug Log</h2>
+		<ul id="debug_list"></ul>
+	</div>
 	<div id="game_main">
 		<div id="left">
 			<div id="left_inner"> <!-- we need something inside the scrolling #left div to allow #dropdown to be absolutely positioned -->
@@ -98,15 +103,22 @@
 			for (var x = 0; x < X_TILES; x++) {
 				map_tile[y].push(new Tile(y, x, Tiletype.EMPTY));
 			}
-		};	
+		};
 
-		var spear = new Weapon("Spear", 3, Directionality.FERZ);
-		var tome = new Weapon("Tome", 2, Directionality.DABBABA);
+		var spear = new Weapon("Spear", 13, Directionality.WAZIR);
+		var sword = new Weapon("Sword", 11, Directionality.FERZ);
+		var tome = new Weapon("Tome", 8, Directionality.DABBABA);
 
-		var aladdin = new Character("Sun", "\u{2600}", "日", {HP: 30, movement: 3}, 0, 1, Alignment.PLAYER, spear);
-		var badroulbadour = new Character("Moon", "\u{1F319}", "月", {HP: 30, movement: 2}, 0, 7, Alignment.PLAYER, tome);
-		var sorcerer = new Character("Cloud", "\u{2601}", "云", {HP: 30, movement: 3}, 3, 0, Alignment.ENEMY, spear);
-		var wazir = new Character("Squall", "\u{1F300}", "飓", {HP: 30, movement: 2}, 3, 6, Alignment.ENEMY, tome);
+		// var aladdin = new Character("Sun", "\u{2600}", "日", {HP: 30, movement: 3}, 0, 1, Alignment.PLAYER, spear);
+		// var badroulbadour = new Character("Moon", "\u{1F319}", "月", {HP: 30, movement: 2}, 0, 7, Alignment.PLAYER, tome);
+		var peach = new Character("Peach", "\u{1F351}", {HP: 30, movement: 4}, 0, 1, Alignment.PLAYER, spear);
+		var daisy = new Character("Daisy", "\u{1F33C}", {HP: 30, movement: 3}, 0, 7, Alignment.PLAYER, tome);
+		var daisy = new Character("Link", "\u{1F517}", {HP: 30, movement: 4}, 0, 4, Alignment.PLAYER, sword);
+		var cloud = new Character("Cloud", "\u{2601}", {HP: 30, movement: 4}, 5, 0, Alignment.ENEMY, spear);
+		var squall = new Character("Squall", "\u{1F300}", {HP: 30, movement: 3}, 5, 6, Alignment.ENEMY, tome);
+		var electrode = new Character("Electrode", "\u{1F50C}", {HP: 30, movement: 4}, 5, 3, Alignment.ENEMY, sword);
+
+		
 	}
 	main();
 	</script>

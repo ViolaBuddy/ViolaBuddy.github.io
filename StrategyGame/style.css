@@ -228,3 +228,20 @@ dd {
 .alignment_enemy .character_name {
 	color: #aa1100;
 }
+
+#debug {
+	display: none;
+	padding: 8px;
+	border: 1px solid red;
+	background-color: pink;
+}
+#debug_list {
+	height: 170px;
+	overflow-y: scroll;
+}
+#debug_state {
+	float: right;
+	border: 1px solid blue;
+	background-color: lightblue;
+	width: 400px;
+}
