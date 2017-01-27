@@ -11,65 +11,82 @@
   // 1. end turn -> mark all characters as unmoved and change to opponent
 //ENEMY TURN
   //(repeat player turn, except current_turn = Alignment.ENEMY)
+ "use strict";
 
 function printDebug(str){
 	var new_li = $("<li>").text(str);
 	$("#debug_list").append(new_li);
 }
 function updateDebugState(){
+	function charToString(char){
+		if(char && "name" in char && "emoji" in char)
+			return char.name + " " + char.emoji;
+		else
+			return char;
+	}
 	var theHTML = "";
-	theHTML += "selected_char: " + selected_char + "<br>";
+	theHTML += "selected_char: " + charToString(selected_char) + "<br>";
 	theHTML += "selected_char_from: " + selected_char_from + "<br>";
 	theHTML += "attacked_tile: " + attacked_tile + "<br>";
-	theHTML += "battle_lhs: " + battle_lhs + "<br>";
-	theHTML += "battle_rhs: " + battle_rhs + "<br>";
+	theHTML += "battle_lhs: " + charToString(battle_lhs) + "<br>";
+	theHTML += "battle_rhs: " + charToString(battle_rhs) + "<br>";
 	theHTML += "current_turn: " + current_turn + "<br>";
 	theHTML += "game_phase: " + game_phase + "<br>";
 
 	$("#debug_state").html(theHTML);
 }
-$("#debug").css("display", "block"); // for debugging only; remove in final production
+// $("#debug").css("display", "block"); // for debugging only; remove in final production
 printDebug("This is the debug list!");
 
 hideDropDownMenu();
 hideBattle();
-$("#fight_btn").click(onFight);
-$("#wait_btn").click(onWait);
+$("#fight_btn").click(function(event_){
+	if (game_phase === GamePhase.CHOOSE_MENU_ITEM) //check the current game phase, just for safety
+		nextGamePhase({"menuItem":MenuItem.FIGHT});
+});
+$("#wait_btn").click(function(event_){
+	if (game_phase === GamePhase.CHOOSE_MENU_ITEM) //check the current game phase, just for safety
+		nextGamePhase({"menuItem":MenuItem.WAIT});
+});
 $("#battle_confirm_btn").click(onBattleConfirm);
 $("#battle_undo_btn").click(onBattleUndo);
 
-Y_TILES = 12;
-X_TILES = 15;
-Tiletype = {
+var Y_TILES = 12;
+var X_TILES = 15;
+var Tiletype = {
 	"EMPTY": "empty"
 } //an enum
-GamePhase = {
-	CHOOSE_CHARACTER: "CHOOSE_CHARACTER: choose a character to move",
-	CHOOSE_DESTINATION: "CHOOSE_DESTINATION: choose destination to go to",
-	CHOOSE_MENU_ITEM: "CHOOSE_MENU_ITEM: choose a menu item",
-	CHOOSE_ENEMY: "CHOOSE_ENEMY: choose an enemy to attack",
-	BATTLE_FORECAST: "BATTLE_FORECAST: confirm if you want to attack this enemy or not",
-	BATTLE_ANIMATION: "BATTLE_ANIMATION: wait for the battle animation to end",
-	BATTLE_RESULTS: "BATTLE_RESULTS: click anything to continue"
+var GamePhase = {
+	CHOOSE_CHARACTER: "CHOOSE_CHARACTER",
+	CHOOSE_DESTINATION: "CHOOSE_DESTINATION",
+	CHOOSE_MENU_ITEM: "CHOOSE_MENU_ITEM",
+	CHOOSE_ENEMY: "CHOOSE_ENEMY",
+	BATTLE_FORECAST: "BATTLE_FORECAST",
+	BATTLE_ANIMATION: "BATTLE_ANIMATION",
+	BATTLE_RESULTS: "BATTLE_RESULTS",
 } //an enum
-SelectionType = {
+var MenuItem = {
+	FIGHT: "Fight",
+	WAIT: "Wait"
+}
+var SelectionType = {
 	"UNSELECTED": "tile_unselected", //not actually a class right now, but it could be
 	"SELECTED": "tile_selected",
 	"ACCESSIBLE": "tile_accessible",
 	"ATTACKABLE": "tile_attackable",
 	"ATTACKED": "tile_attacked"
 } //both an enum and a dict that converts to class name
-Alignment = {
+var Alignment = {
 	"PLAYER": "alignment_player",
 	"ENEMY": "alignment_enemy"
 } //both an enum and a dict that converts to class name
-Directionality = {
+var Directionality = {
 	"WAZIR": "wazir",
 	"FERZ": "ferz",
 	"DABBABA": "dabbaba",
 	"ALFIL": "alfil"
 } //an enum
-DIRECTIONALITY_FNC = {};
+var DIRECTIONALITY_FNC = {};
 	DIRECTIONALITY_FNC[Directionality.WAZIR] = getOrthogonalNeighbors;
 	DIRECTIONALITY_FNC[Directionality.FERZ] = getDiagonalNeighbors;
 	DIRECTIONALITY_FNC[Directionality.DABBABA] = getDababbaNeighbors;
@@ -77,14 +94,18 @@ DIRECTIONALITY_FNC = {};
 	//a dict that converts to functions
 
 //internal representations of the map, accessed by map_XXX[y][x], where map_XXX[0][0] is the top left tile
-map_tile = []; //contains Tiles
-selected_char = null;
-selected_char_from = [null, null];
-attacked_tile = [null, null];
-battle_lhs = null;
-battle_rhs = null;
-current_turn = Alignment.PLAYER;
-game_phase = GamePhase.CHOOSE_CHARACTER;
+var map_tile = []; //contains Tiles
+
+//temporary internal state, for moving forwards and backwards through the game phases without locking in a decision
+var selected_char = null;
+var selected_char_from = [null, null];
+var attacked_tile = [null, null];
+var battle_lhs = null;
+var battle_rhs = null;
+
+var current_turn = Alignment.PLAYER;
+var game_phase = GamePhase.CHOOSE_CHARACTER;
+
 updateDebugState();
 
 /** y and x are the tiles that this character starts on. If it does not start on
@@ -206,8 +227,7 @@ function Weapon(name, power, directionality) {
 function characterOnClick(character, event_) {
 	switch(game_phase){
 		case GamePhase.CHOOSE_CHARACTER:
-			selectCharacter(character);
-			game_phase = GamePhase.CHOOSE_DESTINATION;
+			nextGamePhase({"selectCharacter": character});
 			break;
 		case GamePhase.CHOOSE_DESTINATION:
 			if(selected_char === character) {
@@ -216,28 +236,15 @@ function characterOnClick(character, event_) {
 			}
 			// else, do nothing
 			break;
-		case GamePhase.CHOOSE_MENU_ITEM:
-			// do nothing (TODO: something more smart?)
-			break;
 		case GamePhase.CHOOSE_ENEMY:
 			if(map_tile[character.y][character.x].isSelected === SelectionType.ATTACKABLE) {
-				game_phase = GamePhase.BATTLE_FORECAST;
-				attacked_tile = [character.y, character.x];
-				//TODO: setup attack confirmation screen
-				showBattle(selected_char, character);
+				nextGamePhase({"attacked_character": character});
 			}
 			break;
+		case GamePhase.CHOOSE_MENU_ITEM:
 		case GamePhase.BATTLE_FORECAST:
-			if( character.y === attacked_tile[0] && character.x === attacked_tile[1]) {
-				//TOOD: actually do the attack
-				//TODO: mark character as already been moved
-				deselectCharacter();
-				attacked_tile = [null, null];
-				game_phase = GamePhase.CHOOSE_CHARACTER;
-			}
-			break;
+		case GamePhase.BATTLE_ANIMATION:
 		case GamePhase.BATTLE_RESULTS:
-			break;
 		default:
 			break;
 	}
@@ -246,64 +253,36 @@ function characterOnClick(character, event_) {
 /** called when clicking on a tile [y, x] WITHOUT a character on it */
 function emptyTileOnClick(y, x, event_) {
 	switch(game_phase){
-		case GamePhase.CHOOSE_CHARACTER:
-			// do nothing
-			break;
 		case GamePhase.CHOOSE_DESTINATION:
 			if(map_tile[y][x].isSelected === SelectionType.ACCESSIBLE ||
 			   map_tile[y][x].isSelected === SelectionType.SELECTED) {
-				selected_char.moveTo(y, x);
-
-				showDropDownMenu(event_);
-				game_phase = GamePhase.CHOOSE_MENU_ITEM;
+				nextGamePhase({
+					"charLocation": {"y":y, "x":x},
+					"event_": event_
+				});
 				return;
 
 			} else {
-				// choosing an empty tile cancels
-				deselectCharacter();
-				game_phase = GamePhase.CHOOSE_CHARACTER;
+				previousGamePhase();
 			}
 			break;
 		case GamePhase.CHOOSE_MENU_ITEM:
 			if(map_tile[y][x].isSelected === SelectionType.ACCESSIBLE ||
 			   map_tile[y][x].isSelected === SelectionType.SELECTED) {
 				//if chose a different accessible square, go there as if GamePhase.CHOOSE_DESTINATION
-				game_phase = GamePhase.CHOOSE_DESTINATION;
+				previousGamePhase();
 				emptyTileOnClick(y, x, event_);
 			} else {
-				// choosing an empty tile cancels
-				hideDropDownMenu()
-				selected_char.moveTo(selected_char_from[0], selected_char_from[1]);
-				game_phase = GamePhase.CHOOSE_DESTINATION;
+				previousGamePhase();
 			}
 			//if nonempty, do nothing
 			break;
 		case GamePhase.CHOOSE_ENEMY:
-			// choosing an empty tile cancels
-			showDropDownMenu(event_);
-			game_phase = GamePhase.CHOOSE_MENU_ITEM;
-			// get rid of attack square markings
-			// TODO: there's got to be a better way of doing this, but for now:
-			// save the current data
-			var temp = selected_char;
-			var temp_from = [selected_char.y, selected_char.x];
-			// move the character back to its starting square
-			selected_char.moveTo(selected_char_from[0], selected_char_from[1]);
-			// deselect and reselect the character
-			deselectCharacter();
-			selectCharacter(temp);
-			// move the character back to its current tentative square
-			selected_char.moveTo(temp_from[0], temp_from[1]);
-
+			previousGamePhase({"event_": event_});
 			break;
+		case GamePhase.CHOOSE_CHARACTER:
 		case GamePhase.BATTLE_FORECAST:
-			//if clicking on an empty tile, cancel attack
-
-			//TODO: reset visual display
-
-			attacked_tile = [null, null];
-			console.log("canceled the attack");
-			game_phase = GamePhase.CHOOSE_ENEMY;
+		case GamePhase.BATTLE_ANIMATION:
 		case GamePhase.BATTLE_RESULTS:
 		default:
 			break;
@@ -316,8 +295,8 @@ function showDropDownMenu(event_){
 	//http://stackoverflow.com/questions/4249648/jquery-get-mouse-position-within-an-element
 	$("#dropdown")
 		.css("display", "block")
-		.css("top", event_.clientY - $("#left_inner").offset().top )
-		.css("left", event_.clientX - $("#left_inner").offset().left );
+		.css("top", event_.clientY - $("#left_inner").offset().top)
+		.css("left", event_.clientX - $("#left_inner").offset().left);
 }
 
 function hideDropDownMenu(){
@@ -355,98 +334,35 @@ function hideBattle(){
 	$("#battle_forecast").css("display", "none");
 }
 
-function onFight(event_){
-	switch(game_phase) {
-		case GamePhase.CHOOSE_MENU_ITEM:
-			var attackable_tiles = getAttackable([[selected_char.y, selected_char.x]], selected_char.weapon.directionality, [selected_char.y, selected_char.x], selected_char.alignment);
-			attackable_tiles.forEach(function(item){
-				map_tile[item[0]][item[1]].select(SelectionType.ATTACKABLE);
-			});
-
-			hideDropDownMenu();
-			game_phase = GamePhase.CHOOSE_ENEMY;
-			break;
-
-		case GamePhase.CHOOSE_CHARACTER:
-		case GamePhase.CHOOSE_DESTINATION:
-		case GamePhase.CHOOSE_ENEMY:
-		case GamePhase.BATTLE_FORECAST:
-		case GamePhase.BATTLE_RESULTS:
-		default:
-			//do nothing (not the right game phase - the menu shouldn't be visible, anyway)
-			break;
-	}
-}
-
-function onWait(event_){
-	switch(game_phase) {
-		case GamePhase.CHOOSE_MENU_ITEM:
-			//TODO: mark character as already been moved
-			hideDropDownMenu();
-			deselectCharacter();
-			game_phase = GamePhase.CHOOSE_CHARACTER;
-			break;
-
-		case GamePhase.CHOOSE_CHARACTER:
-		case GamePhase.CHOOSE_DESTINATION:
-		case GamePhase.CHOOSE_ENEMY:
-		case GamePhase.BATTLE_FORECAST:
-		case GamePhase.BATTLE_RESULTS:
-		default:
-			//do nothing (not the right game phase - the menu shouldn't be visible, anyway)
-			break;
-	}
-}
-
-/** perform and show battle calculations, based on battle_lhs and battle_rhs */
-function doBattle() {
-	battle_rhs.currHP -= battle_lhs.weapon.power;
-	//battle_lhs.currHP -= battle_rhs.weapon.power;
-	showBattle(battle_lhs, battle_rhs);
-
-	if(battle_rhs.currHP <= 0) {
-		battle_rhs.die();
-	}
-}
-
 function onBattleConfirm(event_){
 	switch(game_phase) {
 		case GamePhase.BATTLE_FORECAST:
-			//TODO: make this part animated
-			doBattle();
-			game_phase = GamePhase.BATTLE_RESULTS;
-			
+			nextGamePhase();			
 			break;
 		case GamePhase.BATTLE_RESULTS:
-			hideBattle();
-			deselectCharacter();
-			//TODO: mark character as moved
-			game_phase = GamePhase.CHOOSE_CHARACTER;
+			nextGamePhase();
 			break;
 		case GamePhase.CHOOSE_CHARACTER:
 		case GamePhase.CHOOSE_DESTINATION:
 		case GamePhase.CHOOSE_ENEMY:
 		case GamePhase.CHOOSE_MENU_ITEM:
+		case GamePhase.BATTLE_ANIMATION:
 		default:
-			//do nothing (not the right game phase - the buttons shouldn't be clickable, anyway)
 			break;
 	}
 }
 function onBattleUndo(event_){
 	switch(game_phase) {
 		case GamePhase.BATTLE_FORECAST:
-			game_phase = GamePhase.CHOOSE_ENEMY;
-			hideBattle();
-			break;
-		case GamePhase.BATTLE_RESULTS:
-			//visible during battle results, but clicking it does nothing.
+			previousGamePhase();
 			break;
 		case GamePhase.CHOOSE_CHARACTER:
 		case GamePhase.CHOOSE_DESTINATION:
 		case GamePhase.CHOOSE_ENEMY:
 		case GamePhase.CHOOSE_MENU_ITEM:
+		case GamePhase.BATTLE_ANIMATION:
+		case GamePhase.BATTLE_RESULTS:
 		default:
-			//do nothing (not the right game phase - the buttons shouldn't be clickable, anyway)
 			break;
 	}
 }
@@ -474,7 +390,6 @@ function selectCharacter(character) {
 	selected_char = character;
 }
 function deselectCharacter() {
-	//$("td").removeClass("tile_selected tile_accessible tile_attackable"); //deselect everything
 	for (var y = 0; y < map_tile.length; y++) {
 		var row = map_tile[y];
 		for (var x = 0; x < row.length; x++) {
@@ -500,8 +415,7 @@ function endTurn(){
 		default:
 			throw new Error("Inexhaustive pattern match in endTurn")
 	}
-	// for debugging:
-	alert("Now it's this player's turn: " + current_turn);
+	printDebug("Now it's this player's turn: " + current_turn);
 }
 
 /** return all [y, x] tiles that can be reached from the given tile within movement turns*/
@@ -619,23 +533,130 @@ function getAttackable(accessible_tiles, directionality, excluding, excludingAli
 	return toReturn;
 }
 
-/** change the game phase to the given phase, dependent on the current game phase */
-function changeGamePhase(to_phase, extra_data) {
-	switch (to_phase) {
+
+
+
+/* returns dict[key] if it's defined, but throws an Error if it's not */
+Object.prototype.get = function(key) {
+	if (key in this) {
+		return this[key];
+	} else {
+		throw key + " is not in this dictionary!";
+	}
+}
+/** change the game phase to the next phase */
+function nextGamePhase(params) {
+	var to_phase;
+	switch (game_phase) {
+		case GamePhase.CHOOSE_CHARACTER:
+			selectCharacter(params.get("selectCharacter"));
+			to_phase = GamePhase.CHOOSE_DESTINATION;
+			break;
+		case GamePhase.CHOOSE_DESTINATION:
+			selected_char.moveTo(params["charLocation"]["y"], params["charLocation"]["x"]);
+
+			showDropDownMenu(params["event_"]);
+			to_phase = GamePhase.CHOOSE_MENU_ITEM;
+			break;
+		case GamePhase.CHOOSE_MENU_ITEM:
+			if(params.get("menuItem") === MenuItem.FIGHT) {
+				var attackable_tiles = getAttackable([[selected_char.y, selected_char.x]], selected_char.weapon.directionality, [selected_char.y, selected_char.x], selected_char.alignment);
+				attackable_tiles.forEach(function(item){
+					map_tile[item[0]][item[1]].select(SelectionType.ATTACKABLE);
+				});
+
+				hideDropDownMenu();
+				to_phase = GamePhase.CHOOSE_ENEMY;
+			} else if(params.get("menuItem") === MenuItem.WAIT){
+				//TODO: mark character as already been moved
+				hideDropDownMenu();
+				deselectCharacter();
+				to_phase = GamePhase.CHOOSE_CHARACTER;
+			} else {
+				throw "Unrecognized menu selection " + params.get("menuItem");
+			}
+			break;
+		case GamePhase.CHOOSE_ENEMY:
+			attacked_tile = [params.get("attacked_character").y, params.get("attacked_character").x];
+
+			showBattle(selected_char, params.get("attacked_character"));
+			to_phase = GamePhase.BATTLE_FORECAST;
+			break;
+		case GamePhase.BATTLE_FORECAST:
+			$("#battle_forecast_right .stat_dd_HP").text(battle_rhs.currHP + "→" + (battle_rhs.currHP - battle_lhs.weapon.power) + "/" + battle_rhs.maxHP); 
+			$("#battle_confirm_btn").prop("disabled",true);
+			$("#battle_undo_btn").prop("disabled",true);
+
+			setTimeout(function(){
+				battle_rhs.currHP -= battle_lhs.weapon.power;
+				showBattle(battle_lhs, battle_rhs);
+
+				if(battle_rhs.currHP <= 0) {
+					battle_rhs.die();
+				}
+				nextGamePhase();
+			}, 1000);
+			to_phase = GamePhase.BATTLE_ANIMATION;
+			break;
+		case GamePhase.BATTLE_ANIMATION:
+			$("#battle_confirm_btn").prop("disabled",false);
+			$("#battle_undo_btn").prop("disabled",false);
+			to_phase = GamePhase.BATTLE_RESULTS;
+			break;
+		case GamePhase.BATTLE_RESULTS:
+			hideBattle();
+			deselectCharacter();
+			to_phase = GamePhase.CHOOSE_CHARACTER;
+			break;
+		default:
+			throw (to_phase + " is not a recognized phase in nextGamePhase");
+	}
+	game_phase = to_phase;
+	updateDebugState();
+}
+
+
+/** change the game phase to the previous phase */
+function previousGamePhase(params) {
+	var to_phase;
+	switch (game_phase) {
 		case GamePhase.CHOOSE_CHARACTER:
 			break;
 		case GamePhase.CHOOSE_DESTINATION:
+			deselectCharacter();
+			to_phase = GamePhase.CHOOSE_CHARACTER;
 			break;
 		case GamePhase.CHOOSE_MENU_ITEM:
+			hideDropDownMenu()
+			selected_char.moveTo(selected_char_from[0], selected_char_from[1]);
+			to_phase = GamePhase.CHOOSE_DESTINATION;
 			break;
 		case GamePhase.CHOOSE_ENEMY:
+			showDropDownMenu(params.get("event_"));
+			game_phase = GamePhase.CHOOSE_MENU_ITEM;
+			// get rid of red attack square markings
+			// TODO: there's got to be a better way of doing this, but for now:
+			// save the current data, move the character back to its starting square, 
+			// deselect and reselect the character, and move the character back to its current tentative square
+			var temp = selected_char;
+			var temp_from = [selected_char.y, selected_char.x];
+			selected_char.moveTo(selected_char_from[0], selected_char_from[1]);
+			deselectCharacter();
+			selectCharacter(temp);
+			selected_char.moveTo(temp_from[0], temp_from[1]);
+
+			to_phase = GamePhase.CHOOSE_MENU_ITEM;
 			break;
 		case GamePhase.BATTLE_FORECAST:
+			hideBattle();
+			to_phase = GamePhase.CHOOSE_ENEMY;
+			break;
+		case GamePhase.BATTLE_ANIMATION:
 			break;
 		case GamePhase.BATTLE_RESULTS:
 			break;
 		default:
-			throw (to_phase + " is not a recognized phase in changeGamePhase");
+			throw (to_phase + " is not a recognized phase in previousGamePhase");
 	}
 	game_phase = to_phase;
 	updateDebugState();
