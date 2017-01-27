@@ -580,6 +580,8 @@ function nextGamePhase(params) {
 			attacked_tile = [params.get("attacked_character").y, params.get("attacked_character").x];
 
 			showBattle(selected_char, params.get("attacked_character"));
+			$("#battle_confirm_btn").prop("disabled",false);
+			$("#battle_undo_btn").prop("disabled",false);
 			to_phase = GamePhase.BATTLE_FORECAST;
 			break;
 		case GamePhase.BATTLE_FORECAST:
@@ -600,7 +602,6 @@ function nextGamePhase(params) {
 			break;
 		case GamePhase.BATTLE_ANIMATION:
 			$("#battle_confirm_btn").prop("disabled",false);
-			$("#battle_undo_btn").prop("disabled",false);
 			to_phase = GamePhase.BATTLE_RESULTS;
 			break;
 		case GamePhase.BATTLE_RESULTS:
