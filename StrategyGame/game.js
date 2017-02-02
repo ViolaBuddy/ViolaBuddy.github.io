@@ -35,7 +35,7 @@ function updateDebugState(){
 
 	$("#debug_state").html(theHTML);
 }
-// $("#debug").css("display", "block"); // for debugging only; remove in final production
+//$("#debug").css("display", "block"); // for debugging only; remove in final production
 printDebug("This is the debug list!");
 
 hideDropDownMenu();
@@ -103,7 +103,7 @@ var attacked_tile = [null, null];
 var battle_lhs = null;
 var battle_rhs = null;
 
-var current_turn = Alignment.PLAYER;
+var current_turn = Alignment.ENEMY; endTurn(); //endTurn to set the player's turn marker 
 var game_phase = GamePhase.CHOOSE_CHARACTER;
 
 updateDebugState();
@@ -123,6 +123,7 @@ function Character(name, emoji, stats, y, x, alignment, weapon) {
 	this.movement = stats.movement;
 	this.alignment = alignment;
 	this.weapon = weapon;
+	this.isActive = true;
 
 	//set up div
 	this.onscreen_div = $("<div>").addClass("character_container").addClass(alignment);
@@ -185,6 +186,11 @@ Character.prototype.die = function() {
 		source_tile.click(function(e){ emptyTileOnClick(thisY, thisX, e); });
 	}
 }
+/* make this character unselectable and faded */
+Character.prototype.deactivate = function() {
+	//this.isActive = false;
+	//this.onscreen_div.addClass("inactive_char");
+}
 
 function Tile(y, x, type){
 	this.y = y;
@@ -233,15 +239,25 @@ function characterOnClick(character, event_) {
 			if(selected_char === character) {
 				//if you choose the same tile again, it's actually choosing the tile, not the character
 				emptyTileOnClick(selected_char.y , selected_char.x, event_);
+			} else {
+				//otherwise, it's like an empty tile
+				previousGamePhase();
 			}
 			// else, do nothing
 			break;
+		case GamePhase.CHOOSE_MENU_ITEM:
+			if(selected_char !== character) {
+				// no other character should be selectable, so it's the same as an empty tile
+				previousGamePhase();
+			}
 		case GamePhase.CHOOSE_ENEMY:
 			if(map_tile[character.y][character.x].isSelected === SelectionType.ATTACKABLE) {
 				nextGamePhase({"attacked_character": character});
+			} else {
+				//otherwise, it's like an empty tile
+				previousGamePhase({"event_":event_});
 			}
 			break;
-		case GamePhase.CHOOSE_MENU_ITEM:
 		case GamePhase.BATTLE_FORECAST:
 		case GamePhase.BATTLE_ANIMATION:
 		case GamePhase.BATTLE_RESULTS:
@@ -289,14 +305,21 @@ function emptyTileOnClick(y, x, event_) {
 	}
 }
 
+function parseId(id) {
+	return id.split("_").slice(1,3);
+}
 function showDropDownMenu(event_){
-	//TODO! Change to be position of tile, not position of click
+	var target_coords = parseId(event_.currentTarget.id);
+	var target_tile = map_tile[target_coords[0]][target_coords[1]].onscreen_td[0];
+
+	// var top_offset = target_tile.offsetTop + 15;
+	// var left_offset = target_tile.offsetLeft + target_tile.offsetWidth + 15;
 
 	//http://stackoverflow.com/questions/4249648/jquery-get-mouse-position-within-an-element
 	$("#dropdown")
 		.css("display", "block")
-		.css("top", event_.clientY - $("#left_inner").offset().top)
-		.css("left", event_.clientX - $("#left_inner").offset().left);
+		.css("top", target_tile.offsetTop + 15)
+		.css("left", target_tile.offsetLeft + target_tile.offsetWidth + 15);
 }
 
 function hideDropDownMenu(){
@@ -382,11 +405,11 @@ function selectCharacter(character) {
 	selected_tile.select(SelectionType.SELECTED);
 
 	// update right info box
-	$("#right_header").text(character.name);
+	$("#right_header").html(character.name + " <span class=\"character_symbol\">" + character.emoji + "</span>");
 	$("#right_info").html(
-		character.emoji + 
 		"<br>HP:" + character.currHP + "/" + character.maxHP +
-		"<br>Weapon: " + character.weapon.name + " (range: " + character.weapon.directionality + ")");
+		"<br>Weapon: " + character.weapon.name +
+		"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "range: " + character.weapon.directionality);
 	selected_char = character;
 }
 function deselectCharacter() {
@@ -407,9 +430,11 @@ function deselectCharacter() {
 function endTurn(){
 	switch(current_turn){
 		case Alignment.PLAYER:
+			$("#header").html("<h1 class=\"alignment_enemy\">Currently: Red's Turn</h1>");
 			current_turn = Alignment.ENEMY;
 			break;
 		case Alignment.ENEMY:
+			$("#header").html("<h1 class=\"alignment_player\">Currently: Blue's Turn</h1>");
 			current_turn = Alignment.PLAYER;
 			break;
 		default:
@@ -568,7 +593,7 @@ function nextGamePhase(params) {
 				hideDropDownMenu();
 				to_phase = GamePhase.CHOOSE_ENEMY;
 			} else if(params.get("menuItem") === MenuItem.WAIT){
-				//TODO: mark character as already been moved
+				selected_char.deactivate();
 				hideDropDownMenu();
 				deselectCharacter();
 				to_phase = GamePhase.CHOOSE_CHARACTER;
@@ -607,6 +632,7 @@ function nextGamePhase(params) {
 		case GamePhase.BATTLE_RESULTS:
 			hideBattle();
 			deselectCharacter();
+			selected_char.deactivate();
 			to_phase = GamePhase.CHOOSE_CHARACTER;
 			break;
 		default:
@@ -635,8 +661,7 @@ function previousGamePhase(params) {
 		case GamePhase.CHOOSE_ENEMY:
 			showDropDownMenu(params.get("event_"));
 			game_phase = GamePhase.CHOOSE_MENU_ITEM;
-			// get rid of red attack square markings
-			// TODO: there's got to be a better way of doing this, but for now:
+			// reset highlighted squares
 			// save the current data, move the character back to its starting square, 
 			// deselect and reselect the character, and move the character back to its current tentative square
 			var temp = selected_char;

@@ -215,18 +215,20 @@ dd {
 	background-color: #ff0000; /*todo*/
 }
 
-.alignment_player .character_symbol {
-	color: #0033bb;
+.alignment_player {
+	color: #0033cc;
 }
-.alignment_player .character_name {
-	color: #0033bb;
+.alignment_player.inactive_char {
+	color: #444477;
+	opacity: 0.5;
 }
 
-.alignment_enemy .character_symbol {
+.alignment_enemy {
 	color: #aa1100;
 }
-.alignment_enemy .character_name {
-	color: #aa1100;
+.alignment_enemy.inactive_char {
+	color: #774444;
+	opacity: 0.5;
 }
 
 #debug {
