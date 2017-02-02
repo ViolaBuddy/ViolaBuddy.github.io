@@ -1,0 +1,284 @@
+<html>
+<head>
+		<meta charset="UTF-8">
+		<title>World Map</title>
+		<style>
+			body {
+				padding: 1em;
+				text-align: justify;
+			}
+
+			header, h3 {
+				text-align: center;
+			}
+
+			a { 
+				color: #0000dd;
+				cursor: pointer;
+				text-decoration: underline;
+			}
+			a:hover { 
+				color: #9999aa;
+			}
+			a:active {
+				color: #333366;
+			}
+			
+			.unclickable, .unclickable:hover {
+				color: #000000;
+				cursor: text;
+				text-decoration: none;
+				font-weight: bold;
+			}
+
+			svg {
+				border: 1px solid black;
+				display: block;
+				margin: auto;
+			}
+    
+		</style>
+		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+</head>
+<body>
+
+	<div id="main">
+		<header>
+			<h1>Grid Map of the World</h1>
+		</header>
+		<p>A map of the world, with each country taking up an equal area, inspired by similar maps of the 50 US states (see also <a href="http://blog.apps.npr.org/2015/05/11/hex-tile-maps.html">this NPR blog post</a>). I designed the placement of the countries myself. What counts as a country is a politically charged question, unfortunately. I here use the <a href="http://www.un.org/en/members/">193 United Nations members</a>, which includes certain disputed "countries" and excludes others, and even excludes one undisputed country (the Vatican City/the Holy See). The inclusion or exclusion of any given country is not necessarily representative of my personal political opinions. See also <a href="https://en.wikipedia.org/wiki/List_of_states_with_limited_recognition">the Wikipedia page about countries with limited international recognition</a>. The countries are marked on the map with their three-letter <a href="http://www.iso.org/iso/country_codes">ISO 3166-1 alpha-3 codes</a>.</p>
+
+		<p>The data here is of countries that apps are officially released in. However, I expect the apps still work/are accessible in some of the countries that are not officially supported (e.g. the tiny European countries of San Marino, Liechtenstein, Monaco, and Andorra probably got Fire Emblem Heroes and Pok&eacute;mon GO because all of their neighbors did), but I don't know for sure.</p>
+
+		<h3>Fire Emblem Heroes Release Countries</h3>
+		<p>Here is a map of the countries that Fire Emblem Heroes has been released in or is planned to be released in, according to <a href="https://fire-emblem-heroes.com/en/countries/">Nintendo (as of February 2, 2017)</a>.</p>
+		<svg class="map" id="feheroes"></svg>
+
+		<h3>Pok&eacute;mon GO has been released Release Countries</h3>
+		<p>As a comparison, here is a map of the countries where Pok&eacute;mon GO has been released, according to <a href="https://en.wikipedia.org/wiki/Pok%C3%A9mon_Go#Regional_availability">Wikipedia</a>, <a href="https://www.releases.com/availability/pokemon-go">releases.com</a>, and a <a href="http://bulbanews.bulbagarden.net/wiki/Pok%C3%A9mon_GO_released_in_Central_and_South_America">Bulbapedia news article</a> (as of February 2, 2017)</a>. This may look like a much wider coverage, but remember that Pok&eacute;mon GO has been out for much longer. Note that I can't find information on if it's released in Cuba or not. Fun fact: the only country that has Fire Emblem Heroes but not Pok&eacute;mon GO is Russia.</p>
+		<svg class="map" id="pokemongo"></svg>
+
+		<script>
+		var heightSVG = 500, widthSVG = 900;
+		var paddingSVG = 50;
+
+		/* parallel lists */
+		var svgIdList = ["#feheroes", "#pokemongo"];
+		var csvSourceList = ["feheroes.csv", "pokemongo.csv"];
+		var colorsList = [
+			{ type : "ordinal",
+			  null : { fill: "#AAAABB", stroke: "#666666" },
+			  fillColor   : { "1": "#228822"},
+			  strokeColor : { "1": "#006600"} }, //feheroes
+			{ type : "ordinal",
+			  null : { fill: "#AAAABB", stroke: "#666666" },
+			  fillColor   : { "1": "#228822"},
+			  strokeColor : { "1": "#006600"} }, //pokemongo
+			];
+
+		/* if data fails to load, fill the maps in with these colors*/
+		var defaultFillColor = "#AAAABB";
+		var defaultStrokeColor = "#666666";
+		var defaultTextColor = "#222222";
+
+		var allSVGs = d3.selectAll(".map");
+		allSVGs.attr({"height": heightSVG + 2*paddingSVG, "width": widthSVG + 2*paddingSVG});
+		allSVGs.append("rect").attr({x:paddingSVG, y:paddingSVG, width:widthSVG, height:heightSVG})
+			.style({"stroke":"#0066AA", "stroke-width":"2px", "fill":"#BBCCFF"});
+
+		d3.json("countries.json", function(countryData){
+			// SCALING
+			var numRows = d3.max(countryData.map(function(d) { return d.row; }));
+			var numColumns = d3.max(countryData.map(function(d) { return d.col; }));
+			var xScale = d3.scale.linear().domain([0, numColumns + 2]).range([paddingSVG, paddingSVG + widthSVG]);
+			var yScale = d3.scale.linear().domain([0, numRows + 2]).range([paddingSVG, paddingSVG + heightSVG]);
+			var boxWidth = xScale(1) - xScale(0);
+			var boxHeight = yScale(1) - yScale(0);
+
+			// PUTTING STUFF ON SCREEN
+			for (var j = 0; j < svgIdList.length; j++) {
+				var newCountryData = cloneCountryData(countryData);
+
+				var thisSvg = d3.select(svgIdList[j]);
+				var theLabel = thisSvg.append("text").style("fill", "green")
+					.attr({x: 10, y: paddingSVG/2, width: widthSVG, class: "label"})
+					.text("Click on the countries.");
+
+				var theseGs = thisSvg.selectAll(".countries").data(newCountryData).enter()
+				.append("g").attr({
+					"transform": function(d) {
+						return "translate(" + xScale(d.col) + "," + yScale(d.row) + ")";
+					},
+					"class": "countries"
+				});
+
+				theseGs.append("rect")
+					.attr({
+						"width": boxWidth,
+						"height": boxHeight,
+						"rx": "4px",
+						"ry": "4px",
+						"stroke-width":"1px",
+						"cursor": "pointer",
+
+						"fill": defaultFillColor,
+						"stroke": defaultStrokeColor
+					})
+					.on("click", function(d){
+						theLabel.text(d.name);
+					});
+
+				theseGs.append("text")
+					.attr({
+						"fill": defaultTextColor,
+						"font-family": "monospace",
+						"text-anchor": "middle",
+						"alignment-baseline": "middle",
+						"font-size": boxHeight / 2,
+						"y": boxHeight / 2,
+						"x": boxWidth / 2,
+						"pointer-events": "none"
+					})
+					.text(function(d) {return d.abbr;});
+
+				d3.csv(csvSourceList[j], plotData(newCountryData, thisSvg, colorsList[j]) );
+			}
+		});
+
+		function plotData(countryData, theSVG, colors) {
+			return (function(highlightData) {
+				// FORMAT DATA
+				var countryNameArray = countryData.map(function(d) { return d.name; });
+				var highlightNameDict = {};
+				//convert the raw array of objects into a set with the keys being country names
+				highlightData.forEach(function(d) {
+					highlightNameDict[d.name] = d.value;
+				});
+				//append color information to the objects in the main countryData array
+				countryData.forEach(function(d){
+					d["dataValue"] = highlightNameDict[d.name];
+					if (!d["dataValue"]) d["dataValue"] = null; //undefined, null, or NaN becomes null
+				});
+
+				//for debugging purposes, print out any unused names
+				Object.keys(highlightNameDict).forEach(function(d){
+					if (countryNameArray.indexOf(d) === -1) {
+						console.log(d);
+					}
+				});
+				
+				var theseGs = theSVG.selectAll("g");
+
+				//set up scales
+				switch (colors.type) {
+					case "ordinal":
+						var scaleDomain = [];
+						var fillRange = [];
+						var strokeRange = [];
+						//strokes and fills should have the same keys
+						Object.keys(colors.fillColor).forEach(function(d){
+							scaleDomain.push(d);
+							fillRange.push(colors.fillColor[d]);
+							strokeRange.push(colors.strokeColor[d]);
+						});
+						scaleDomain.push(null);
+						fillRange.push(colors.null.fill);
+						strokeRange.push(colors.null.stroke);
+
+						var fillScale = d3.scale.ordinal().domain(scaleDomain).range(fillRange);
+						var strokeScale = d3.scale.ordinal().domain(scaleDomain).range(strokeRange);
+						break;
+					case "linear":
+						var min = d3.min(countryData, function(d){ if(d.dataValue !== null) return +d.dataValue; });
+						var max = d3.max(countryData, function(d){ if(d.dataValue !== null) return +d.dataValue; });
+
+						// fill
+						var rScale_f = d3.scale.linear().domain([min, max]).range([colors.low.fill[0], colors.high.fill[0]]);
+						var gScale_f = d3.scale.linear().domain([min, max]).range([colors.low.fill[1], colors.high.fill[1]]);
+						var bScale_f = d3.scale.linear().domain([min, max]).range([colors.low.fill[2], colors.high.fill[2]]);
+						var fillScale = function(input){
+							if (input === null)
+								return colors.null.fill; 
+							return d3.rgb(rScale_f(+input), gScale_f(+input), bScale_f(+input));
+						}
+
+						// stroke
+						var rScale_s = d3.scale.linear().domain([min, max]).range([colors.low.stroke[0], colors.high.stroke[0]]);
+						var gScale_s = d3.scale.linear().domain([min, max]).range([colors.low.stroke[1], colors.high.stroke[1]]);
+						var bScale_s = d3.scale.linear().domain([min, max]).range([colors.low.stroke[2], colors.high.stroke[2]]);
+						var strokeScale = function(input){
+							if (input === null)
+								return colors.null.stroke; 
+							return d3.rgb(rScale_s(+input), gScale_s(+input), bScale_s(+input));
+						}
+						break;
+					case "logarithmic":
+						var min = d3.min(countryData, function(d){ if(d.dataValue !== null && d.dataValue > 0) return +d.dataValue; });
+						var max = d3.max(countryData, function(d){ if(d.dataValue !== null && d.dataValue > 0) return +d.dataValue; });
+
+						// fill
+						var rScale_f = d3.scale.log().domain([min, max]).range([colors.low.fill[0], colors.high.fill[0]]);
+						var gScale_f = d3.scale.log().domain([min, max]).range([colors.low.fill[1], colors.high.fill[1]]);
+						var bScale_f = d3.scale.log().domain([min, max]).range([colors.low.fill[2], colors.high.fill[2]]);
+						var fillScale = function(input){
+							if (input === null || input <= 0)
+								return colors.null.fill; 
+							return d3.rgb(rScale_f(+input), gScale_f(+input), bScale_f(+input));
+						}
+
+						// stroke
+						var rScale_s = d3.scale.log().domain([min, max]).range([colors.low.stroke[0], colors.high.stroke[0]]);
+						var gScale_s = d3.scale.log().domain([min, max]).range([colors.low.stroke[1], colors.high.stroke[1]]);
+						var bScale_s = d3.scale.log().domain([min, max]).range([colors.low.stroke[2], colors.high.stroke[2]]);
+						var strokeScale = function(input){
+							if (input === null || input <= 0)
+								return colors.null.stroke; 
+							return d3.rgb(rScale_s(+input), gScale_s(+input), bScale_s(+input));
+						}
+						break;
+				}
+				var textScale = function(input){
+					if(input === null)
+						return strokeScale(null);
+					return "#111111";
+				}
+
+				// fill each box with correct color
+				theseGs.selectAll("rect")
+					.attr({
+						"fill": function(d){ return fillScale(d.dataValue); },
+						"stroke": function(d){ return strokeScale(d.dataValue); }
+					})
+					.on("click", function(d){
+						var theValue = d.abbr + ": " + d.name;
+
+						/*+ ": ";
+						if (d.dataValue === null) {
+							theValue += "No data";
+						} else if ( !isNaN(+d.dataValue) ) {
+							//for numbers, add commas for readability
+							theValue += (d3.format("0,000"))(d.dataValue) + " " + colors.unit;
+						} else {
+							theValue += d.dataValue;
+						}*/
+
+						theSVG.select(".label").text(theValue);
+					});
+				theseGs.selectAll("text")
+					.attr({"fill": function(d){ return textScale(d.dataValue); } });
+			}); 
+		}
+
+		function cloneCountryData(countryData) {
+			return countryData.map(function(d){
+				return {abbr:d.abbr, col:d.col, name:d.name, row:d.row};
+			});
+		}
+
+		</script>
+	</div>
+</body>
+</html>
+
+
+
