@@ -65,7 +65,7 @@ td {
 	border: 1px solid #cc6666;
 	width: 70%;
 	height: 100%;
-	overflow: scroll;
+	overflow: auto;
 }
 #left_inner {
 	height: auto;

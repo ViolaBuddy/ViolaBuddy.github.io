@@ -51,8 +51,8 @@ $("#wait_btn").click(function(event_){
 $("#battle_confirm_btn").click(onBattleConfirm);
 $("#battle_undo_btn").click(onBattleUndo);
 
-var Y_TILES = 12;
-var X_TILES = 15;
+var Y_TILES = 9;
+var X_TILES = 10;
 var Tiletype = {
 	"EMPTY": "empty"
 } //an enum

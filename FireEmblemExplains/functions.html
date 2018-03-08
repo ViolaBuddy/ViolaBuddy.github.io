@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+  <title>Functions | Fire Emblem Heroes Explain</title>
+
+</head>
+
+<link rel="stylesheet" type="text/css" href="style.css"></link>
+
+<body>
+<script src="d3.v3.min.js"></script>
+<header>
+<h1>Functions</h1>
+</header>
+
+<div id="intro_div" class="main">
+  <h3>Introduction</h3>
+  <dl>
+    <dt class="leo_talks">Leo</dt>
+      <dd>Hello, Kiran. Are you ready to learn about <dfn>mathematical functions</dfn>? Do pay attention. I'd rather not need to repeat myself needlessly. Besides, you have an automatic record of everything that I am saying, so please take your time to go back up to previous things I have said. Oh, but do ask any and all questions you have; if I am being unclear, you must let me know at once.</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Oh, come on, Leo, lighten up! This isn't a matter of death on the battlefield! We should make this fun!</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>*sigh* Very well, Henry. I will do my best to entertain.</dd>
+  </dl>
+</div>
+
+<div id="whatare_div" class="main">
+  <h3>What Are Functions?</h3>
+  <dl>
+    <dt class="leo_talks">Leo</dt>
+      <dd>So let's begin. <dfn>Functions</dfn> are mathematical objects, single-valued relations that map one input set to another output set&mdash;</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Woah, woah! I thought we said "fun" not "dead boring and filled with FUNky terminology." Let me try to explain this. Kiran, imagine asking someone for his or her opinion on something. Oh, hey, Mist is over there! Let's grab her as our example. HEY, MIIIST! WANNA COME OVER AND HELP OUT WITH SOMETHING?</dd>
+    <dt class="mist_talks">Mist</dt>
+      <dd>Hmm? Oh, hi Henry, Leo, Kiran. What can I help you guys with?</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Kiran's just going to ask you a few questions.</dd>
+    <!--dt class="kiran_talks">Kiran</dt>
+      <dd>???</dd-->
+    <dt class="leo_talks">Leo</dt>
+      <dd>We've prepared an interactive display on this magical tome in front of you to assist you in your learning. You can tell they're interactive by their white page color. Click on the buttons on the left side to ask Mist a question. Try asking the same question multiple times.</dd>
+  </dl>
+
+  <div class="interactive" id="interactive1">
+    <table>
+      <tr>
+        <td>Kiran<br><img src="img/Kiran_head.png"></td>
+        <td>Mist<br><img src="img/Mist_head.png" class="flipped"></td>
+      </tr>
+      <tr>
+        <td id="Kiran_options_interactive1">&nbsp;</td>
+        <td id="Mist_responses_interactive1">&nbsp;</td>
+      </tr>
+    </table>
+    <button id="reset_interactive1">Reset</button>
+  </div>
+
+  <dl>
+    <dt class="mist_talks">Mist</dt>
+      <dd>Henry, what's the purpose of this?</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>We're trying to teach Kiran about mathematical functions, but I guess that demonstration didn't really turn out quite as well as I thought it would. Apparently, you're not a function after all! Nya ha ha! But hey, at least we have an example of something that's <em>not</em> a function!</dd>
+    <dt class="mist_talks">Mist</dt>
+      <dd>Wait, what? Why am I not a function? What does that mean?</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>I see what Henry's getting at. Let's first start with the ways in which Mist did act like a function:
+        <ul>
+          <li>She required an <dfn>input</dfn>. That is, there were questions that you asked her. And there was a <dfn>domain</dfn>, a set of such questions. Oh, what's a <dfn>set</dfn>, you ask? It's just a term for a collection of mathematical objects that we want to group together because they're easier to talk about that way.</li>
+          <li>She produced an <dfn>output</dfn>. That is, she answered your questions with some responses. And indeed, these responses depended on the input questions that you asked her. The <dfn>range</dfn> is the set of all outputs she gave you. There's also something called a <dfn>codomain</dfn>, the set of all possible outputs she <em>could</em> have given you&mdash;she could've said essentially anything, so the codomain in this case is "all possible sentences."</li>
+          <!--li>There was an idea of a <dfn>function call</dfn>. That is, there is a sort of "transaction" that happens, where you provide her an input and she gives you an output. This whole process is known as a function call.</li-->
+        </ul>
+        However, there is one big way in which Mist did not act like a function: she was not <dfn>single-valued</dfn>. You could ask the same question twice, but you would get different response. In a function, any given input must produce the same output consistently, every single time. But these three properties essentially define what a function is: a function accepts inputs, and for any given input, it produces a particular, reproducible output.
+      </dd>
+    <dt class="mist_talks">Mist</dt>
+      <dd>You know, it seems like it'd be pretty boring to be a function.</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>Well, they don't usually have feelings. They're not usually human like you are.</dd>
+    <dt class="mist_talks">Mist</dt>
+      <dd>Ahem, excuse me? "Human"?</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>I meant beorc! Beorc!</dd>
+    <dt class="mist_talks">Mist</dt>
+      <dd>Teehee, I'm just teasing you. I know you don't mean anything by that.</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Ooh, but this conversation gives me an idea! You know what other kind of things doesn't have feelings? Replicas! Nya ha ha!</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>Henry, what are you&mdash;? Henry, are you summoning a Replica? Of <em>Mist</em>?</dd>
+    <dt class="mist_talks">Replica Mist</dt>
+      <dd>&hellip;</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Yep, it's a replica like the kind Hoshidan Mechanists can make. These replicas really are like pure function. You can ask it anything all you like and it will just spit out the same answer all day as long as you give it the same answer every time. Here, Kiran, why don't you try it out?</dd>
+  </dl>
+
+  <div class="interactive" id="interactive2">
+    <table>
+      <tr>
+        <td>Kiran<br><img src="img/Kiran_head.png"></td>
+        <td>Replica Mist<br><img src="img/Mist_head.png" class="flipped"></td>
+      </tr>
+      <tr>
+        <td id="Kiran_options_interactive2">&nbsp;</td>
+        <td id="Mist_responses_interactive2">&nbsp;</td>
+      </tr>
+    </table>
+    <button id="reset_interactive2">Reset</button>
+  </div>
+
+  <dl>
+    <dt class="mist_talks">Mist</dt>
+      <dd>Well, this is kind of creepy.</dd>
+    <dt class="mist_talks">Replica Mist</dt>
+      <dd>&hellip;</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>You start to get used to creepiness when you work with Henry a lot.</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Anyway, Kiran, that's all a function is! It's not too complicated of an idea: just a thing that can take in something and spit out something, reliably.</dd>
+  </dl>
+</div>
+
+<div id="notation_div" class="main">
+  <h3>Notation</h3>
+  <dl>
+    <dt class="leo_talks">Leo</dt>
+      <dd>Hopefully, Kiran, Henry's example has given you an intuition of what a function is, but we need to formalize it. We gave you a function, Replica Mist, but we don't do math with real moving replicas. That'd be terribly inconvenient, to have to summon a replica every time we want to talk about functions. So how would you notate functions on paper?</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Let's start with the easy stuff. Just as we can say "Mist is a function" in words, we can just as well use the word "Mist" to refer to the function. But normally, people like one-letter function names unless it's a really special function. Here, though, let's just cut off her head and paste it onto the page!</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>Henry&mdash;</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Oh, I'm just kidding. We'll use an image of her head, since these magic equation tomes&mdash;the ones with the gray pages, which are <em>not</em> interactive&mdash;are great at showing you images, and images are so much more interesting to look at than pages of funny letters, though if you're writing equations by hand, you're going to have to use these boring old letters.</dd>
+  </dl>
+  <div class="equation" id="equation1">
+    <img src="img/Mist_head.png">
+  </div>
+  <dl>
+    <dt class="mist_talks">Mist</dt>
+      <dd>That was quite a bit of talk for something that wasn't all that impressive, in the end&hellip;</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Well it looks like it's time for some more fun, then! How do we say that "We ask Replica Mist the question 'What do you think about Ike?'"? Well, we throw the input into some parentheses.</dd>
+  </dl>
+  <div class="equation" id="equation2">
+    <img src="img/Mist_head.png">("What do you think about Ike?")
+  </div>
+  <dl>
+    <dt class="leo_talks">Leo</dt>
+      <dd>We should be precise about what this means exactly. The above is an expression that means the <em>output</em> when we ask Replica Mist the question "What do you think about Ike?" Now, perhaps you might be thinking, that the output of Mist when we ask her that question is "Ike? I like him"! And you'd be right. We can notate that with an equal sign:</dd>
+  </dl>
+  <div class="equation" id="equation3">
+    <img src="img/Mist_head.png">("What do you think about Ike?") = "Ike? I like him."
+  </div>
+  <dl>
+    <dt class="leo_talks">Leo</dt>
+      <dd>You can read this "the output of Mist when we ask her, 'What do you think about Ike?' is equal to 'Ike? I like him.'" There's also notation for denoting the domain and codomain of a function&mdash;oh, but we have to show you how to notate a set. Well, that's easy&mdash;just put the <dfn>elements</dfn> of the set between curly brackets (remember a set is just a collection of "things"; these "things in a set" are properly called "elements"):</dd>
+  </dl>
+  <div class="equation" id="equation4">
+    {"What do you think about Ike?", "What do you think about Soren?", "What do you think about Boyd?"}
+  </div>
+  <dl>
+    <dt class="leo_talks">Leo</dt>
+      <dd>But this is extremely long to write out, even with just three elements. So we can also give it a name. Like function names, set names are usually a single letter; we'll use D for "Domain." This is generally done with the word "let" but this a loose rule. The following two equivalent mathematical statements are the main two variations of this that you'll see people use (either the word "be" or an equal sign):</dd>
+  </dl>
+  <div class="equation" id="equation5">
+    Let D be the set {"What do you think about Ike?", "What do you think about Soren?", "What do you think about Boyd?"}
+  </div>
+  <div class="equation" id="equation6">
+    Let D = {"What do you think about Ike?", "What do you think about Soren?", "What do you think about Boyd?"}
+  </div>
+  <dl>
+    <dt class="leo_talks">Leo</dt>
+      <dd>And then to denote the domain of a function, you use a colon and an arrow. Note also that we're defining our codomain C with very much non-rigorous terminology here ("all possible sentences"). We could make it more formal, but this would be distracting from the point of this example&mdash;and indeed often in real mathematics, you'll take shortcuts in mathematical notation in exactly these cases where the full notation would be distracting from your main point and the non-rigorous notation is clear enough anyway.</dd>
+  </dl>
+  <div class="equation" id="equation7">
+    Let D be the set {"What do you think about Ike?", "What do you think about Soren?", "What do you think about Boyd?"} <br>
+    Let C be the set of all possible sentences.<br>
+    <img src="img/Mist_head.png">: D &rarr; C
+  </div>
+  <dl>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Hey Leo? This is all very abstract and you can see the real Mist's eyes glazing over, to say nothing of Kiran. Why don't we get into something a bit more concrete? Because what's great about this notation is that you can define your very own function with this! You simply have to state the domain and codomain, and then state what the output is for every possible input in the domain. You would define the Mist function like this, for example:</dd>
+  </dl>
+  <div class="equation" id="equation8">
+    Let D and C be defined as above.<br>
+    <img src="img/Mist_head.png">: D &rarr; C <br>
+    <img src="img/Mist_head.png">("What do you think about Ike?") = "Ike? I like him." <br>
+    <img src="img/Mist_head.png">("What do you think about Soren?") = "Soren? I like him." <br>
+    <img src="img/Mist_head.png">("What do you think about Boyd?") = "Boyd? He's a dolt."
+  </div>
+  <dl>
+    <dt class="henry_talks">Henry</dt>
+      <dd>And that entirely defines our Mist function! Also note that these three definitions can be written in any order, as long as you fill out your whole domain somehow. So here, why don't you try to define a function, too, Kiran? Come on, it's great fun! Here, let me create a new Replica, and I'll set it up so that the notation you write down in the tome will automatically change how the replica behaves.</dd>
+  </dl>
+
+  <div class="interactive" id="interactive3">
+    <div class="interactive_equation" id="interactive3_equation">
+      Let C be the set of all possible sentences.<br>
+      Let D be the set { <span id="interactive3_equation_set_1"> </span> <button id="interactive3_add">(add new item)</button>  }<br>
+      <img src="img/Odin_head.png">: D &rarr; C
+      <span id="interactive3_equation_set_2"></span>
+    </div>
+
+    <table>
+      <tr>
+        <td>Kiran<br><img src="img/Kiran_head.png"></td>
+        <td>Replica Odin<br><img src="img/Odin_head.png" class="flipped"></td>
+      </tr>
+      <tr>
+        <td id="Kiran_options_interactive3">&nbsp;</td>
+        <td id="Odin_responses_interactive3">&nbsp;</td>
+      </tr>
+    </table>
+    <button id="reset_interactive3">Reset</button>
+  </div>
+
+
+</div>
+
+<div id="notation_div" class="main">
+  <h3>Numbers</h3>
+  <dl>
+    <dt class="leo_talks">Leo</dt>
+      <dd>Perhaps you noticed something strange about the domain and range so far. The range we've been using is an infinite set, one with every possible string of words in it, of any length. The domain, however, has been a finite set of questions. But there's nothing that stops us from letting the domain be infinite, too. In fact, much of mathematics is about functions with infinite domains: that is, functions whose domains are numbers.</dd>
+      <dd>Now, you may be concerned about notation. In principle, we could start listing out every possible. In practice, of course, not so much. (Also, even an infinite list is too small to contain all real numbers, but let's not get into that.) So most of the time, we only deal with functions where we can write <dfn>some sort of rule</dfn> where we take in a number, do something to that number, and output another number.</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>So for example, consider:</dd>
+  </dl>
+
+  
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
