@@ -27,7 +27,7 @@
 </div>
 
 <div id="whatare_div" class="main">
-  <h3>What Are Functions?</h3>
+  <h3>What are functions?</h3>
   <dl>
     <dt class="leo_talks">Leo</dt>
       <dd>So let's begin. <dfn>Functions</dfn> are mathematical objects, single-valued relations that map one input set to another output set&mdash;</dd>
@@ -89,8 +89,10 @@
       <dd>Henry, what are you&mdash;? Henry, are you summoning a Replica? Of <em>Mist</em>?</dd>
     <dt class="mist_talks">Replica Mist</dt>
       <dd>&hellip;</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>We never should have let Saizo teach you about Replicas.</dd>
     <dt class="henry_talks">Henry</dt>
-      <dd>Yep, it's a replica like the kind Hoshidan Mechanists can make. These replicas really are like pure function. You can ask it anything all you like and it will just spit out the same answer all day as long as you give it the same answer every time. Here, Kiran, why don't you try it out?</dd>
+      <dd>Aw, but they're fun! Besides, they really do act like pure functions. You can ask it anything all you like and it will just spit out the same answer all day long, as long as you give it the same question every time. Here, Kiran, why don't you try it out?</dd>
   </dl>
 
   <div class="interactive" id="interactive2">
@@ -113,7 +115,7 @@
     <dt class="mist_talks">Replica Mist</dt>
       <dd>&hellip;</dd>
     <dt class="leo_talks">Leo</dt>
-      <dd>You start to get used to creepiness when you work with Henry a lot.</dd>
+      <dd>For better or for worse, you start to get used to creepiness when you work with Henry a lot.</dd>
     <dt class="henry_talks">Henry</dt>
       <dd>Anyway, Kiran, that's all a function is! It's not too complicated of an idea: just a thing that can take in something and spit out something, reliably.</dd>
   </dl>
@@ -125,11 +127,11 @@
     <dt class="leo_talks">Leo</dt>
       <dd>Hopefully, Kiran, Henry's example has given you an intuition of what a function is, but we need to formalize it. We gave you a function, Replica Mist, but we don't do math with real moving replicas. That'd be terribly inconvenient, to have to summon a replica every time we want to talk about functions. So how would you notate functions on paper?</dd>
     <dt class="henry_talks">Henry</dt>
-      <dd>Let's start with the easy stuff. Just as we can say "Mist is a function" in words, we can just as well use the word "Mist" to refer to the function. But normally, people like one-letter function names unless it's a really special function. Here, though, let's just cut off her head and paste it onto the page!</dd>
+      <dd>Let's start with the easy stuff. We can say the sentence "Replica Mist is a function" in words, so what's wrong with using the words "Replica Mist" to refer to the function in mathematical notation? Well, in fact, nothing! But to keep things short, people like one-letter function names unless it's a really special function. Here, though, let's just cut off her head and paste it onto the page!</dd>
     <dt class="leo_talks">Leo</dt>
       <dd>Henry&mdash;</dd>
     <dt class="henry_talks">Henry</dt>
-      <dd>Oh, I'm just kidding. We'll use an image of her head, since these magic equation tomes&mdash;the ones with the gray pages, which are <em>not</em> interactive&mdash;are great at showing you images, and images are so much more interesting to look at than pages of funny letters, though if you're writing equations by hand, you're going to have to use these boring old letters.</dd>
+      <dd>Oh, I'm just kidding. We'll use an image of her head, since these magic equation tomes&mdash;the ones with the gray pages, which are <em>not</em> interactive&mdash;are great at showing you images, and images are so much more interesting to look at than pages of funny letters. (Though if you're writing equations by hand, you're going to have to use these boring old letters.)</dd>
   </dl>
   <div class="equation" id="equation1">
     <img src="img/Mist_head.png">
@@ -159,7 +161,7 @@
   </div>
   <dl>
     <dt class="leo_talks">Leo</dt>
-      <dd>But this is extremely long to write out, even with just three elements. So we can also give it a name. Like function names, set names are usually a single letter; we'll use D for "Domain." This is generally done with the word "let" but this a loose rule. The following two equivalent mathematical statements are the main two variations of this that you'll see people use (either the word "be" or an equal sign):</dd>
+      <dd>But this is extremely long to write out, even with just three elements. So we can also give it a name. Like function names, set names are usually a single letter; we'll use D for "Domain." Then we can use this letter later if we need to instead of writing everything out again. Defining functions is generally done with the word "let" but this a loose rule. The following two equivalent mathematical statements are the main two variations of this that you'll see people use (either the word "be" or an equal sign):</dd>
   </dl>
   <div class="equation" id="equation5">
     Let D be the set {"What do you think about Ike?", "What do you think about Soren?", "What do you think about Boyd?"}
@@ -198,6 +200,8 @@
       Let D be the set { <span id="interactive3_equation_set_1"> </span> <button id="interactive3_add">(add new item)</button>  }<br>
       <img src="img/Odin_head.png">: D &rarr; C
       <span id="interactive3_equation_set_2"></span>
+      <br><br>
+      <button id="interactive3_go_button">Make my function!</button>
     </div>
 
     <table>
@@ -219,12 +223,68 @@
 <div id="notation_div" class="main">
   <h3>Numbers</h3>
   <dl>
+    <dt class="mist_talks">Mist</dt>
+      <dd>Leo, I have a question. The set of all possible sentences, that set that we're calling C&hellip; We've been using it as our codomain so far, but we could use it as our domain, too, right?</dd>
     <dt class="leo_talks">Leo</dt>
-      <dd>Perhaps you noticed something strange about the domain and range so far. The range we've been using is an infinite set, one with every possible string of words in it, of any length. The domain, however, has been a finite set of questions. But there's nothing that stops us from letting the domain be infinite, too. In fact, much of mathematics is about functions with infinite domains: that is, functions whose domains are numbers.</dd>
-      <dd>Now, you may be concerned about notation. In principle, we could start listing out every possible. In practice, of course, not so much. (Also, even an infinite list is too small to contain all real numbers, but let's not get into that.) So most of the time, we only deal with functions where we can write <dfn>some sort of rule</dfn> where we take in a number, do something to that number, and output another number.</dd>
+      <dd>Yes, we certainly could.</dd>
+    <dt class="mist_talks">Mist</dt>
+      <dd>But then, to define such a function&hellip; you have to write out every single possible sentence, and what it maps into? Isn't that a lot? How many possible sentences are there?</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>Ah yes, there's an interesting question. The answer is infinite, in fact&mdash;we can make arbitrarily long sentences, especially since we don't even need to restrain ourself with grammar since not everyone speaks with perfect grammar all the time. But there's nothing wrong with having an infinitely large domain. In fact, a large amount of mathematics is about studying functions whose domain and codomain are <dfn>the set of all real numbers</dfn>, which is a very infinite set. In principle, we could define functions by  listing out every possible input and what they map to. In practice, of course, not so much, as you point out. So most of the time, we only deal with functions where we can write <dfn>some sort of rule</dfn> where we take in a number, do something to that number, and output another number.</dd>
     <dt class="henry_talks">Henry</dt>
       <dd>So for example, consider:</dd>
   </dl>
+  <div class="equation" id="equation9">
+    Let &#x211D; be the set of all real numbers.<br>
+    <img src="img/Odin_head.png">: &#x211D; &rarr; &#x211D; <br>
+    <img src="img/Odin_head.png">(x) = 3x<sup>2</sup> + 1
+  </div>
+  <dl>
+    <dt class="henry_talks">Henry</dt>
+      <dd>That funny-looking &#x211D; is the symbol we use to represent the set of all real numbers. It's called <dfn>blackboard bold</dfn> when we double up the strokes like that, and we use it for a couple of special sets. Like we said earlier, mathematicians just give everything a funny symbol&mdash;and this one is quite standardized, so let's not change it, or else people won't know what you're talking about! Nya ha ha!</dd>
+    <dt class="leo_talks">Leo</dt>
+      <dd>That said, when it's clear we're talking about numbers, we don't usually write out the domain and codomain explicity&mdash;but it's good to keep it in mind. When dealing with functions in computer science, especially, where these sets are known as <dfn>types</dfn>, it's often necessary to mark the domain and codomain explicitly. &hellip;What do you mean, "how do I know what computer science is?" There's a computational tome right there in your hands.</dd>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Computational tomes and replicas and other things you have to program are all just dumb machines that cannot always guess types from context unless you give them help, and even if they can guess, it's often annoying to debug what's happening when they guess incorrectly. I'll tell you more about dealing with functions in programming in a moment. But for now, we're all humans here&mdash;I think&mdash;so if it's obvious from context what the domain and codomain are, we can omit it from our notation. Makes it easier for everyone who's not a machine! So our function is just:</dd>
+  </dl>
+  <div class="equation" id="equation10">
+    <img src="img/Odin_head.png">(x) = 3x<sup>2</sup> + 1
+  </div>
+  <dl>
+    <dt class="leo_talks">Leo</dt>
+      <dd>Which is more-or-less <em>just</em> the "rules" I was talking about earlier. Unlike the definitions we gave earlier, we replace an actual input with a <dfn>variable</dfn> x, which can represent any element of the input set. So if we want to know what the output of this function is for any particular x&mdash;we'll use 2.5 for our example&mdash;we can just plug in 2.5 everywhere there's an x on both sides of this equation, then on the right hand side we can just hack away at the arithmetic:</dd>
+  </dl>
+  <div class="equation" id="equation11">
+    <img src="img/Odin_head.png">(2.5) = 3(2.5)<sup>2</sup> + 1<br> 
+  </div>
+  <div class="equation" id="equation11b">
+    <img src="img/Odin_head.png">(2.5) = 3(6.25) + 1<br> 
+  </div>
+  <div class="equation" id="equation11c">
+    <img src="img/Odin_head.png">(2.5) = 18.75 + 1<br> 
+  </div>
+  <div class="equation" id="equation11c">
+    <img src="img/Odin_head.png">(2.5) = 19.75<br> 
+  </div>
+  <dl>
+    <dt class="henry_talks">Henry</dt>
+      <dd>Hey, why don't we let Mist and Kiran play with this <img src="img/Odin_head.png" class="equation_img"> function a little bit?</dd>
+  </dl>
+
+  <div class="interactive" id="interactive2">
+    <table>
+      <tr>
+        <td>Kiran<br><img src="img/Kiran_head.png"></td>
+        <td>Replica Odin<br><img src="img/Odin_head.png" class="flipped"></td>
+      </tr>
+      <tr>
+        <td id="Kiran_options_interactive2"><input id="Kiran_options_input_interactive2"> <button id="Kiran_options_submit_interactive2">Go!</button> </td>
+        <td id="Mist_responses_interactive2">&nbsp;</td>
+      </tr>
+    </table>
+    <button id="reset_interactive2">Reset</button>
+  </div>
+
 
   
 

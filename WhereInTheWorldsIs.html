@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+  <title>Where in the Worlds Is Anna the Commander?</title>
+
+</head>
+
+<link rel="stylesheet" type="text/css" href="WhereInTheWorldsIs.css"></link>
+
+<body>
+<script src="FireEmblemExplains/d3.v3.min.js"></script>
+<header>
+<h1>Where in the Worlds Is Anna the Commander?</h1>
+</header>
+
+<div id="intro_div" class="main">
+  <p>This is Where in the World Is Anna the Commander?, a game based on Nintendo/Intelligent System's Fire Emblem series and Broderbund/The Learning Company/Houghton Mifflin Harcourt's Where in the World Is Carmen Sandiego? series. All relevant rights go to them.</p>
+  <button id="intro_begin_btn">Begin</button>
+</div>
+
+<div id="town_div" class="main">
+  <h2 id="town_name">Town</h2>
+  <ul id="town_ul">
+  </ul>
+  <button id="town_next_location_btn">To the outrealm gates</button>
+</div>
+
+<div id="interrogate_div" class="main">
+  <h2>Interrogating a witness</h2>
+  <div id="interrogate_profile">
+    <img src="">
+    <br>
+    <h2 id="interrogate_name_h2">TEMP</h2>
+  </div>
+  <p id="interrogate_response"></p>
+  <ul>
+    <li><a id="interrogate_questions_where">Where did she go?</a></li>
+    <li><a id="interrogate_questions_what">What did she steal?</a></li>
+    <li><a id="interrogate_questions_goodbye">Goodbye.</a></li>
+  </ul>
+</div>
+
+<div id="relocate_div" class="main">
+  <h2 id="relocate_name">Where to?</h2>
+  <ul id="relocate_ul">
+  </ul>
+  <button id="relocate_back_to_town_btn">Back to the witnesses</button>
+</div>
+
+<div id="find_div" class="main">
+  <h2 id="find_name">Final Town</h2>
+  <div id="find_profile">
+    <img src="">
+    <br>
+    <h2 id="find_name_h2">Alfonse</h2>
+  </div>
+  <p id="find_response">We've received news that the thing that Anna stole is here! Have you figured out what item it is that we should look out for?</p>
+  <ul id="find_ul">
+  </ul>
+</div>
+
+<div id="win_div" class="main">
+  <h2 id="win_name">You win!</h2>
+  <p id="win_description">You caught Anna!</p>
+  <button id="win_restart_btn">Play again</button>
+</div>
+
+<div id="lose_div" class="main">
+  <h2 id="lose_name">You lose!</h2>
+  <p id="lose_description">You were looking for the wrong item, and as you did so, Anna came in under your noses and escaped with her stolen item.</p>
+  <button id="lose_restart_btn">Play again</button>
+</div>
+
+<div id="outoftime_div" class="main">
+  <h2 id="outoftime_name">You lose!</h2>
+  <p id="outoftime_description">You are out of time.</p>
+  <button id="outoftime_restart_btn">Play again</button>
+</div>
+
+
+
+<script>
+  // Constants
+  var _enum_counter = 0;
+  var PHASE_INTRO =       _enum_counter++;
+  var PHASE_TOWN =        _enum_counter++;
+  var PHASE_INTERROGATE = _enum_counter++;
+  var PHASE_RELOCATE =    _enum_counter++;
+  var PHASE_TOWN_INCORRECT =        _enum_counter++;
+  var PHASE_INTERROGATE_INCORRECT = _enum_counter++;
+  var PHASE_RELOCATE_INCORRECT =    _enum_counter++;
+  var PHASE_FIND =        _enum_counter++;
+  var PHASE_WIN =         _enum_counter++;
+  var PHASE_LOSE =        _enum_counter++;
+  var PHASE_OUTOFTIME =   _enum_counter++;
+  var PHASE_TO_DIV_DICTIONARY = {
+    [PHASE_INTRO]: "#intro_div",
+    [PHASE_TOWN]: "#town_div",
+    [PHASE_INTERROGATE]: "#interrogate_div",
+    [PHASE_RELOCATE]: "#relocate_div",
+    [PHASE_TOWN_INCORRECT]: "#town_div",
+    [PHASE_INTERROGATE_INCORRECT]: "#interrogate_div",
+    [PHASE_RELOCATE_INCORRECT]: "#relocate_div",
+    [PHASE_FIND]: "#find_div",
+    [PHASE_WIN]: "#win_div",
+    [PHASE_LOSE]: "#lose_div",
+    [PHASE_OUTOFTIME]: "#outoftime_div"
+  }
+  var GREETING_TEXT = "Hello.";
+
+  // Data about the world
+  //todo: randomly generate
+  var locationList = [
+    ["Ram Village"],
+    ["Nevassa", "Ylisstol", "Caelin"],
+    ["Jehanna", "Melior", "Cyrkensia"]]; 
+  var locationCorrect = [0, 1, 2];
+  var locationClues = [
+    [],
+    ["Where she's going, there are famous Shepherds who don't tend to sheep.", "The clery there are fearsome. Some of them are nuns with axes!", "She's going somewhere that's run by an exalt."],
+    ["It's a place famous for its dancing and singing.", "She went to a neutral territory in a war.", "There's a famous opera house in that town."]
+    ];
+  var locationPeople = [
+    [
+      ["Alm", "Gray", "Faye"]
+    ],
+    [
+      ["Micaiah", "Sothe", "Black Knight"],
+      ["Sully", "Lissa", "Frederick"],
+      ["Lyn", "Dorcas", "Florina"]
+    ],
+    [
+      ["Joshua", "Marisa", "L'Arachel"],
+      ["Performing Azura", "Camilla", "Performing Shigure"],
+      ["Oscar", "Elincia", "Titania"]
+    ],     
+  ];
+
+  var itemList = [
+    "Falchion",
+    "Lehran's Medallion"
+  ]
+  var itemCorrect = 0;
+  var itemClues = "She stole the Falchion."; //TODO
+
+  // game state variables
+  var gamePhase = PHASE_INTRO;
+  var numLocationsFinished = NaN;
+  changePhase(PHASE_INTRO);  //initialize
+
+  d3.select("#intro_begin_btn").on("click", function(){
+    changePhase(PHASE_TOWN);
+  });
+  d3.select("#town_next_location_btn").on("click", function(){
+    changePhase(PHASE_RELOCATE);
+  });
+  d3.select("#relocate_back_to_town_btn").on("click", function(){
+    changePhase(PHASE_TOWN);
+  })
+  d3.select("#win_restart_btn").on("click", function(){
+    changePhase(PHASE_INTRO);
+  })
+  d3.select("#lose_restart_btn").on("click", function(){
+    changePhase(PHASE_INTRO);
+  })
+  d3.select("#outoftime_restart_btn").on("click", function(){
+    changePhase(PHASE_INTRO);
+  })
+
+  /* update the game's phase, and set any other necessary variables */
+  function changePhase(nextPhase, extraData) {
+    // change active div
+    d3.select(PHASE_TO_DIV_DICTIONARY[gamePhase]).style("display", "none");
+    d3.select(PHASE_TO_DIV_DICTIONARY[nextPhase]).style("display", "block");
+    gamePhase = nextPhase;
+
+    if (nextPhase === PHASE_INTRO) {
+      numLocationsFinished = 0;
+    }
+
+    if (nextPhase === PHASE_TOWN) {
+      d3.select("#town_name").text(locationList[numLocationsFinished][locationCorrect[numLocationsFinished]]);
+
+      var the_ul = d3.select("#town_ul");
+      the_ul.html("");
+      var all_links = the_ul.selectAll("li").data(locationPeople[numLocationsFinished][locationCorrect[numLocationsFinished]], function(d){return d;})
+        .enter().append("li").append("a");
+      all_links.html(function(d){ return d; });
+      all_links.on("click", function(d, i){
+        changePhase(PHASE_INTERROGATE, {"name": d, "index": i});
+      });
+    }
+
+    if (nextPhase === PHASE_INTERROGATE) {
+      //TODO: image
+      d3.select("#interrogate_name_h2").text(extraData["name"]);
+      d3.select("#interrogate_response").text(GREETING_TEXT);
+
+      d3.select("#interrogate_questions_where").on("click", function(){
+        d3.select("#interrogate_response").text(locationClues[numLocationsFinished+1][extraData["index"]]);
+      });
+
+      d3.select("#interrogate_questions_what").on("click", function(){
+        d3.select("#interrogate_response").text(itemClues); //TODO
+      });
+
+      d3.select("#interrogate_questions_goodbye").on("click", function(){
+        changePhase(PHASE_TOWN);
+      })
+    }
+
+    if (nextPhase === PHASE_RELOCATE) {
+      var the_ul = d3.select("#relocate_ul");
+      the_ul.html("");
+      var all_links = the_ul.selectAll("li").data(locationList[numLocationsFinished+1], function(d){return d;})
+        .enter().append("li").append("a");
+      all_links.html(function(d){ return d; });
+      all_links.on("click", function(d, i){
+        if(i === locationCorrect[numLocationsFinished + 1]){
+          numLocationsFinished++;
+          if(numLocationsFinished === locationList.length - 1) {
+            changePhase(PHASE_FIND);
+          } else {
+            changePhase(PHASE_TOWN);
+          }
+        } else {
+          alert('not yet implemented');
+        }
+        //changePhase(PHASE_INTERROGATE, {"name": d, "index": i});
+      });
+    }
+
+    if (nextPhase === PHASE_FIND){
+      d3.select("#find_name").text(locationList[numLocationsFinished][locationCorrect[numLocationsFinished]]);
+
+      var the_ul = d3.select("#find_ul");
+      the_ul.html("");
+      var all_links = the_ul.selectAll("li").data(["Falchion", "Lehran's Medallion"], function(d){return d;}) //TODO
+        .enter().append("li").append("a");
+      all_links.html(function(d){ return d; });
+      all_links.on("click", function(d, i){
+        if(i === itemCorrect) {
+          changePhase(PHASE_WIN);
+        } else {
+          changePhase(PHASE_LOSE);
+        }
+      });
+    }
+  }
+  //src="script.js"
+</script>
+</body>
+</html>

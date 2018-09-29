@@ -56,6 +56,10 @@
     border-radius: 4px;
   }
 
+  dd+dd {
+    margin-top: 5px;
+  }
+
   dt {
     background-position: right;
     background-repeat: no-repeat;
@@ -78,6 +82,36 @@
   }
   dt.virion_talks {
     background-image: url('img/Virion_head.png');
+  }
+  dt.oscar_talks {
+    background-image: url('img/Oscar_head.png');
+  }
+  dt.mrobin_talks {
+    background-image: url('img/MRobin_head.png');
+  }
+  dt.gordin_talks {
+    background-image: url('img/Gordin_head.png');
+  }
+  dt.saber_talks {
+    background-image: url('img/Saber_head.png');
+  }
+
+  dd table {
+    border: 1px solid brown;
+    margin: 1px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    table-layout: fixed;
+  }
+  dd td {
+    border: 1px solid coral;
+    margin: 1px;
+    padding: 4px;
+  }
+  dd thead{
+    font-weight: bold;
+    font-variant-caps: small-caps;
   }
 
   .interactive {
@@ -117,6 +151,11 @@
     width: 799px;
     text-align: center;
   }
+
+  .equation sup {
+      vertical-align: super;
+      font-size: smaller;
+  } 
 
   .interactive_equation {
     margin-left:auto;

@@ -1,3 +1,57 @@
+/** CLASSES AND REPEATED-USE FUNCTIONS **/
+
+/** a class that represents an instance of an interactive pure function
+ * target_name_options is the id of the dialogue box td as a string (including the # sign)
+ * target_name_answers: td where responses go
+ * target_name_reset: reset button
+ * questions_list is the list of options, as an array of strings
+ * answers_list is list of answers, correlated with the questions_list by index
+ */
+function InteractiveFunction(target_name_options, target_name_answers, target_name_reset, questions_list, answers_list){
+  var target_answers = d3.select(target_name_answers);
+  d3.select(target_name_options).html("")
+  target_answers.html("");
+
+  populateKiranDialogueOptions(target_name_options, questions_list,
+    function(d, i){
+        var the_text = answers_list[i];
+        target_answers.html(the_text);
+    });
+
+  d3.select(target_name_reset).on("click", function(){
+    target_answers.html("&nbsp;");
+  });
+}
+
+/** a class that represents an instance of an interactive pure function
+ * target_name_options is the id of the input box as a string (including the # sign)
+ * target_name_answers: td where responses go
+ * target_name_reset: reset button
+ * conversion_function is the function that takes in a number and returns a number
+ */
+function InteractiveNumberFunction(target_name_input, target_name_answers, target_name_reset, conversion_function){
+  var target_answers = d3.select(target_name_answers);
+  d3.select(target_name_options).html("")
+  target_answers.html("");
+
+  populateKiranDialogueOptions(target_name_options, questions_list,
+    function(d, i){
+        var the_text = answers_list[i];
+        target_answers.html(the_text);
+    });
+
+  d3.select(target_name_reset).on("click", function(){
+    target_answers.html("&nbsp;");
+  });
+}
+
+/** returns whether or not there are duplicate elements in the array */
+function hasDuplicates(array){
+  //TODO: check compatibility issues with Set. Or just wait until it's fully adopted by everyone.
+
+  return (new Set(array)).size !== array.length;
+}
+
 /** for adding options to Kiran's dialogue box
  * target_name is the id of the dialogue box (including the # sign) as a string
  * questions_list is the list of options, as an array of strings
@@ -12,8 +66,10 @@ function populateKiranDialogueOptions(target_name, questions_list, on_click) {
   all_buttons.append("button")
     .html(function(d){return d;})
     .on("click", on_click);
+  all_buttons.append("br");
 }
 
+/** MAIN AND SINGLE-USE FUNCTIONS **/
 /** code for each interactive div **/
 // separated into one-time use functions for variable scoping reasons
 
@@ -44,19 +100,11 @@ function interactive_1() {
 }
 
 function interactive_2() {
-  var mist_responses = d3.select("#Mist_responses_interactive2");
   var questions_list = ['"What do you think about Ike?"', '"What do you think about Soren?"', '"What do you think about Boyd?"'];
   var all_mist_responses_list = ["Ike? I like him.", "Soren? I like him.", "Boyd? He's a dolt."];
 
-  populateKiranDialogueOptions("#Kiran_options_interactive2", questions_list,
-    function(d, i){
-        var the_text = all_mist_responses_list[i];
-        mist_responses.html(the_text);
-    });
-
-  d3.select("#reset_interactive2").on("click", function(){
-    mist_responses.html("&nbsp;");
-  });
+  new InteractiveFunction("#Kiran_options_interactive2", "#Mist_responses_interactive2", "#reset_interactive2",
+    questions_list, all_mist_responses_list);
 };
 
 function interactive_3() {
@@ -72,9 +120,9 @@ function interactive_3() {
       .data(questions_list)
       .text(function(_, i){ return questions_list[i]; });
 
-    d3.selectAll("#Kiran_options_interactive3 .interactive_3_input_button")
+    /*d3.selectAll("#Kiran_options_interactive3 .interactive_3_input_button")
       .data(questions_list)
-      .text(function(_, i){ return questions_list[i]; });
+      .text(function(_, i){ return questions_list[i]; });*/
   }
   function change_responses(i, newContent) {
     responses_list[i] = newContent;
@@ -89,9 +137,6 @@ function interactive_3() {
     var range_input = d3.select("#interactive3_equation_set_2").selectAll("#interactive3_equation_set_2>span")
       .data(responses_list).enter();
     generate_range_input(range_input);
-    var button_input = d3.select("#Kiran_options_interactive3").selectAll("#Kiran_options_interactive3>g")
-      .data(questions_list).enter();
-    generate_button_input(button_input);
   }
   function remove_questions(i, newContent) {
     console.log(newContent);
@@ -161,18 +206,29 @@ function interactive_3() {
   var range_input = d3.select("#interactive3_equation_set_2").selectAll("#interactive3_equation_set_2>span")
     .data(responses_list).enter();
   generate_range_input(range_input);
-  var button_input = d3.select("#Kiran_options_interactive3").selectAll("#Kiran_options_interactive3>g")
-    .data(questions_list).enter();
-  generate_button_input(button_input);
 
-  d3.select("#interactive3_add").on("click", add_questions );
+  d3.select("#interactive3_add").on("click", add_questions);
 
-  d3.select("#reset_interactive3").on("click", function(){
-    d3.select("#Odin_responses_interactive3").html("&nbsp;");
+  d3.select("#interactive3_go_button").on("click", function(){
+    if(hasDuplicates(questions_list)){
+      //create alert
+      //TODO: a less intrusive alert
+
+      alert('Functions can\'t have the same input defined twice!');
+    } else {
+      new InteractiveFunction("#Kiran_options_interactive3", "#Odin_responses_interactive3", "#reset_interactive3", questions_list, responses_list);
+    }
   });
 
 };
 
+function interactive_4() {
+  /*new InteractiveFunction("#Kiran_options_interactive2", "#Mist_responses_interactive2", "#reset_interactive2",
+    questions_list, all_mist_responses_list);*/
+};
+
+
 interactive_1();
 interactive_2();
 interactive_3();
+interactive_4();

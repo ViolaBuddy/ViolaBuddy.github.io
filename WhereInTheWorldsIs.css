@@ -1,0 +1,97 @@
+  body {
+  	background-color: #354458;
+  	font-family: 'Times New Roman', serif;
+    font-size: 1.2em;
+  }
+
+  header {
+    margin-left:auto;
+    margin-right:auto;
+    margin-bottom: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 0.1em;
+    padding-bottom: 0.1em;
+    width: 90%;
+  	text-align: center;
+  	color: #354458;
+    background-color: #F3EFE0;
+  }
+
+  .main {
+    margin-left:auto;
+    margin-right:auto;
+    margin-bottom: 0.3em;
+    padding: 1em;
+    width: 90%;
+    border: 2px solid #354458;
+    background-color: #F3EFE0;
+  }
+
+  dfn {
+    font-weight: bolder;
+    font-style: normal;
+    font-family: arial;
+  }
+
+  dt {
+    background-color: #880022;
+    border-radius: 10px;
+
+    font-size: 20px;
+    color: #ffffff;
+
+    padding: 30px;
+    padding-left: 20px;
+    margin-bottom: 2px;
+    margin-top: 10px;
+
+    width: 200px;
+  }
+
+  dd {
+    background-color: #ffdd99;
+    border: 3px solid #aa7722;
+    padding: 10px;
+    border-radius: 4px;
+  }
+
+  dd+dd {
+    margin-top: 5px;
+  }
+
+  dt {
+    background-position: right;
+    background-repeat: no-repeat;
+  }
+
+  dt.kiran_talks {
+    background-image: url('img/Kiran_head.png');
+  }
+
+  a {
+    text-decoration: underline;
+    color: #449944;
+    cursor: pointer;
+  }
+
+  #town_div, #interrogate_div, #relocate_div, #find_div, #win_div, #lose_div, #outoftime_div {
+    display: none;
+  }
+
+  #interrogate_profile, #find_profile {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    width: 400px;
+  }
+
+  #interrogate_response, #find_response {
+    border: 2px solid gold;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+    background-color: white;
+    min-height: 50px;
+  }
